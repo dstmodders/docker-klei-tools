@@ -23,13 +23,13 @@
 | --------------------------- | ------------------------------------------ | --------------------------- |
 | `DS_KTOOLS_KRANE`           | `/usr/local/bin/krane`                     | Path to [ktools][] `krane`  |
 | `DS_KTOOLS_KTECH`           | `/usr/local/bin/ktech`                     | Path to [ktools][] `ktech`  |
-| `DS_KTOOLS_VERSION`         | `4.4.0`                                    | [ktools][] version          |
+| `DS_KTOOLS_VERSION`         | `4.5.0`                                    | [ktools][] version          |
 | `DS_MOD_TOOLS_AUTOCOMPILER` | `/opt/ds-mod-tools/mod_tools/autocompiler` | Path to `autocompiler`      |
 | `DS_MOD_TOOLS_PNG`          | `/opt/ds-mod-tools/mod_tools/png`          | Path to `png`               |
 | `DS_MOD_TOOLS_SCML`         | `/opt/ds-mod-tools/mod_tools/scml`         | Path to `scml`              |
-| `DS_MOD_TOOLS_VERSION`      | `3fe0cad89848c9d0fca8a4139a0491d188497636` | Version (release or commit) |
+| `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                    | Version (release or commit) |
 | `DS` or `DST`               | `/opt/dont_starve`                         | Path to the game directory  |
-| `IMAGEMAGICK_VERSION`       | `6.9.12-19`                                | [ImageMagick][] version     |
+| `IMAGEMAGICK_VERSION`       | `7.1.0-5`                                  | [ImageMagick][] version     |
 
 ## Usage
 
