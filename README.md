@@ -1,7 +1,7 @@
 # docker-ds-mod-tools
 
 [![Debian Size](https://img.shields.io/docker/image-size/viktorpopkov/ds-mod-tools/debian?label=debian%20size)](https://hub.docker.com/r/viktorpopkov/ds-mod-tools)
-[![CI](https://img.shields.io/github/workflow/status/victorpopkov/docker-ds-mod-tools/CI?label=CI)](https://github.com/victorpopkov/docker-ktools/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/workflow/status/victorpopkov/docker-ds-mod-tools/CI?label=CI)](https://github.com/victorpopkov/docker-ds-mod-tools/actions/workflows/ci.yml)
 
 > This repository uses a fork [victorpopkov/ds-mod-tools][] instead of the
 > original [kleientertainment/ds_mod_tools][]. All tags prefixed with "official"
