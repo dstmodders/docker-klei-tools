@@ -20,6 +20,11 @@ jobs:
             root: ./official
           - ds-mod-tools-version: 1.0.0
             ktools-version: 4.5.0
+            latest: false
+            official: false
+            root: ./latest
+          - ds-mod-tools-version: 1.0.0
+            ktools-version: 4.5.1
             latest: true
             official: false
             root: ./latest
