@@ -1,7 +1,7 @@
 # docker-ds-mod-tools
 
 [![Debian Size](https://img.shields.io/docker/image-size/viktorpopkov/ds-mod-tools/debian?label=debian%20size)](https://hub.docker.com/r/viktorpopkov/ds-mod-tools)
-[![CI](https://img.shields.io/github/workflow/status/victorpopkov/docker-ds-mod-tools/CI?label=CI)](https://github.com/victorpopkov/docker-ds-mod-tools/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/workflow/status/victorpopkov/docker-ds-mod-tools/CI?label=ci)](https://github.com/victorpopkov/docker-ds-mod-tools/actions/workflows/ci.yml)
 
 > This repository uses a fork [victorpopkov/ds-mod-tools][] instead of the
 > original [kleientertainment/ds_mod_tools][]. All tags prefixed with "official"
@@ -23,20 +23,20 @@
 | --------------------------- | ------------------------------------------ | --------------------------- |
 | `DS_KTOOLS_KRANE`           | `/usr/local/bin/krane`                     | Path to [ktools][] `krane`  |
 | `DS_KTOOLS_KTECH`           | `/usr/local/bin/ktech`                     | Path to [ktools][] `ktech`  |
-| `DS_KTOOLS_VERSION`         | `4.5.0`                                    | [ktools][] version          |
+| `DS_KTOOLS_VERSION`         | `4.5.1`                                    | [ktools][] version          |
 | `DS_MOD_TOOLS_AUTOCOMPILER` | `/opt/ds-mod-tools/mod_tools/autocompiler` | Path to `autocompiler`      |
 | `DS_MOD_TOOLS_PNG`          | `/opt/ds-mod-tools/mod_tools/png`          | Path to `png`               |
 | `DS_MOD_TOOLS_SCML`         | `/opt/ds-mod-tools/mod_tools/scml`         | Path to `scml`              |
 | `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                    | Version (release or commit) |
 | `DS` or `DST`               | `/opt/dont_starve`                         | Path to the game directory  |
-| `IMAGEMAGICK_VERSION`       | `7.1.0-5`                                  | [ImageMagick][] version     |
+| `IMAGEMAGICK_VERSION`       | `7.1.0-7`                                  | [ImageMagick][] version     |
 
 ## Usage
 
 Fork [releases][] (recommended):
 
 ```shell
-$ docker pull viktorpopkov/ds-mod-tools # same tag: 1.0.0-ktools-4.5.0
+$ docker pull viktorpopkov/ds-mod-tools # same tag: 1.0.0-ktools-4.5.1
 ```
 
 Or you can also pick one of the [official releases][]:
@@ -79,7 +79,7 @@ $ docker run --rm -u ds-mod-tools -v '/path/to/game/:/opt/dont_starve/' viktorpo
 
 #### Shell/Bash
 
-You can optionally set the game mods' directory as the `DST_MODS` environment
+You can optionally set the game mods' directory as the `DST` environment
 variable and then mount it if needed:
 
 ```shell
@@ -97,7 +97,7 @@ C:\> docker run --rm -u ds-mod-tools -itv "%CD%:/opt/dont_starve/" viktorpopkov/
 
 #### PowerShell
 
-You can optionally set the game mods' directory as the `DST_MODS` environment
+You can optionally set the game mods' directory as the `DST` environment
 variable and then mount it if needed:
 
 ```powershell
