@@ -1,19 +1,19 @@
 ARG DS_KTOOLS_VERSION="4.5.1"
 
-FROM viktorpopkov/ktools:${DS_KTOOLS_VERSION}-debian
+FROM dstmodders/ktools:${DS_KTOOLS_VERSION}-debian
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 WORKDIR /tmp/
 RUN rm -Rf /data/ \
   && userdel -r ktools \
-  && groupadd --gid 1000 ds-mod-tools \
+  && groupadd --gid 1000 klei-tools \
   && useradd \
     --uid 1000 \
-    --gid ds-mod-tools \
+    --gid klei-tools \
     --shell /bin/bash \
     --create-home \
-    ds-mod-tools \
+    klei-tools \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
     ca-certificates='20210119' \
@@ -45,7 +45,7 @@ ARG DS_MOD_TOOLS_VERSION="1.0.0"
 
 ENV DS="/opt/dont_starve"
 ENV DST="${DS}"
-ENV DS_MOD_TOOLS="/opt/ds-mod-tools/mod_tools"
+ENV DS_MOD_TOOLS="/opt/klei-tools/mod_tools"
 ENV DS_MOD_TOOLS_AUTOCOMPILER="${DS_MOD_TOOLS}/autocompiler"
 ENV DS_MOD_TOOLS_PNG="${DS_MOD_TOOLS}/png"
 ENV DS_MOD_TOOLS_SCML="${DS_MOD_TOOLS}/scml"
@@ -58,10 +58,10 @@ RUN apt-get update \
     ca-certificates='20210119' \
     premake4='4.3+repack1-2+b1' \
     wget='1.21-1+b1' \
-  # ds-mod-tools \
-  && wget "https://github.com/victorpopkov/ds-mod-tools/archive/refs/tags/v${DS_MOD_TOOLS_VERSION}.tar.gz" \
+  # klei-tools \
+  && wget "https://github.com/dstmodders/klei-tools/archive/refs/tags/v${DS_MOD_TOOLS_VERSION}.tar.gz" \
   && tar xzf "v${DS_MOD_TOOLS_VERSION}.tar.gz" \
-  && cd "ds-mod-tools-${DS_MOD_TOOLS_VERSION}/src/" \
+  && cd "klei-tools-${DS_MOD_TOOLS_VERSION}/src/" \
   && ./premake.sh \
   && make -C ../build/proj/ config=release \
   && mv ../build/linux/mod_tools/mod_tools/* ../build/linux/mod_tools/ \
@@ -78,7 +78,7 @@ RUN apt-get update \
   && mv ../build/linux/mod_tools/* "${DS_MOD_TOOLS}" \
   && mv ../build/dont_starve/ /opt/ \
   && cd "${DS_MOD_TOOLS}" \
-  && chown -R ds-mod-tools:ds-mod-tools /opt/temp/ \
+  && chown -R klei-tools:klei-tools /opt/temp/ \
   && chmod +x \
     ./autocompiler \
     ./png \
