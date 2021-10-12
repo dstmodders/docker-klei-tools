@@ -7,35 +7,34 @@ on:
       - main
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v2
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          JSON=$(cat ./versions.json)
+          echo "::set-output name=matrix::$(jq -cM . <<< ${JSON})"
+
   build:
+    needs: prepare
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       matrix:
-        image:
-          - ds-mod-tools-version: 3fe0cad89848c9d0fca8a4139a0491d188497636
-            ktools-version: 4.4.0
-            latest: true
-            official: true
-            root: ./official
-          - ds-mod-tools-version: 1.0.0
-            ktools-version: 4.5.0
-            latest: false
-            official: false
-            root: ./latest
-          - ds-mod-tools-version: 1.0.0
-            ktools-version: 4.5.1
-            latest: true
-            official: false
-            root: ./latest
+        image: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     steps:
       - name: Check out
         uses: actions/checkout@v2
       - name: Set a job-wide environment variables
         run: |
           echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          echo "DS_KTOOLS_VERSION=${{ matrix.image.ktools-version }}" >> $GITHUB_ENV
-          echo "DS_MOD_TOOLS_VERSION=${{ matrix.image.ds-mod-tools-version }}" >> $GITHUB_ENV
+          echo "DS_KTOOLS_VERSION=${{ matrix.image.ktools }}" >> $GITHUB_ENV
+          echo "DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}" >> $GITHUB_ENV
           echo "GITHUB_JOB_NAME=build" >> $GITHUB_ENV
           echo "ROOT=${{ matrix.image.root }}" >> $GITHUB_ENV
       - name: Set up QEMU
@@ -60,8 +59,8 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/ds-mod-tools
-            ghcr.io/${{ github.repository_owner }}/ds-mod-tools
+            ${{ github.repository_owner }}/klei-tools
+            ghcr.io/${{ github.repository_owner }}/klei-tools
           flavor: |
             latest=${{ matrix.image.latest }}
             prefix=${{ matrix.image.official && 'official-' || '' }},onlatest=${{ matrix.image.official }}
@@ -81,7 +80,7 @@ jobs:
           platforms: linux/amd64
           pull: true
           push: ${{ !env.ACT && github.ref == 'refs/heads/main' }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/ds-mod-tools:${{ !matrix.image.official && format('{0}-', env.DS_MOD_TOOLS_VERSION) || 'official-' }}ktools-${{ env.DS_KTOOLS_VERSION }}-debian
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/klei-tools:${{ !matrix.image.official && format('{0}-', env.DS_MOD_TOOLS_VERSION) || 'official-' }}ktools-${{ env.DS_KTOOLS_VERSION }}-debian
           cache-to: type=inline
           build-args: |
             DS_KTOOLS_VERSION=${{ env.DS_KTOOLS_VERSION }}
