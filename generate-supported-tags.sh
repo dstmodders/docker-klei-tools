@@ -9,6 +9,7 @@ VERSIONS=()
 cd "${BASE_DIR}" || exit 1
 
 mapfile -t VERSIONS < <(jq -r 'keys[]' ./versions.json)
+# shellcheck disable=SC2207
 IFS=$'\n' VERSIONS=($(sort -rV <<< "${VERSIONS[*]}")); unset IFS
 
 readonly BASE_DIR
