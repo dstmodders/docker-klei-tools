@@ -19,7 +19,7 @@ RUN rm -Rf /data/ \
     ca-certificates='20210119' \
     python2.7='2.7.18-8' \
     unzip='6.0-26' \
-    wget='1.21-1+b1' \
+    wget='1.21-1+deb11u1' \
   # pip + packages \
   && wget https://bootstrap.pypa.io/pip/2.7/get-pip.py \
   && python2.7 ./get-pip.py \
@@ -57,7 +57,7 @@ RUN apt-get update \
     build-essential='12.9' \
     ca-certificates='20210119' \
     premake4='4.3+repack1-2+b1' \
-    wget='1.21-1+b1' \
+    wget='1.21-1+deb11u1' \
   # klei-tools \
   && wget "https://github.com/dstmodders/klei-tools/archive/refs/tags/v${DS_MOD_TOOLS_VERSION}.tar.gz" \
   && tar xzf "v${DS_MOD_TOOLS_VERSION}.tar.gz" \
