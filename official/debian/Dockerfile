@@ -21,7 +21,7 @@ RUN rm -Rf /data/ \
     unzip='6.0-26' \
     wget='1.21-1+deb11u1' \
   # pip + packages \
-  && wget https://bootstrap.pypa.io/pip/2.7/get-pip.py \
+  && wget -q https://bootstrap.pypa.io/pip/2.7/get-pip.py \
   && python2.7 ./get-pip.py \
   && pip install --no-cache-dir pillow=='6.2.2' \
   # clean
@@ -105,4 +105,4 @@ RUN apt-get update \
     /var/log/dpkg.log
 
 WORKDIR ${DS_MOD_TOOLS}
-CMD ${DS_MOD_TOOLS}/autocompiler
+CMD ["${DS_MOD_TOOLS}/autocompiler"]
