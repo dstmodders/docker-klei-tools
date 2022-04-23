@@ -2,6 +2,7 @@
 
 [![Debian Size](https://img.shields.io/docker/image-size/dstmodders/klei-tools/debian?label=debian%20size)](https://hub.docker.com/r/dstmodders/klei-tools)
 [![CI](https://img.shields.io/github/workflow/status/dstmodders/docker-klei-tools/CI?label=ci)](https://github.com/dstmodders/docker-klei-tools/actions/workflows/ci.yml)
+[![Build](https://img.shields.io/github/workflow/status/dstmodders/docker-klei-tools/Build?label=build)](https://github.com/dstmodders/docker-klei-tools/actions/workflows/build.yml)
 
 ## Supported tags and respective `Dockerfile` links
 
@@ -35,7 +36,7 @@ _This repository uses a fork [dstmodders/klei-tools][] instead of the original
 | `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | Path to `scml`              |
 | `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | Version (release or commit) |
 | `DS` or `DST`               | `/opt/dont_starve`                       | Path to the game directory  |
-| `IMAGEMAGICK_VERSION`       | `7.1.0-23`                               | [ImageMagick][] version     |
+| `IMAGEMAGICK_VERSION`       | `7.1.0-30`                               | [ImageMagick][] version     |
 
 ## Usage
 
