@@ -6,8 +6,6 @@ DISTS=('debian')
 URL='https://github.com/dstmodders/docker-klei-tools'
 VERSIONS=()
 
-cd "${BASE_DIR}" || exit 1
-
 mapfile -t VERSIONS < <(jq -r 'keys[]' ./versions.json)
 # shellcheck disable=SC2207
 IFS=$'\n' VERSIONS=($(sort -rV <<< "${VERSIONS[*]}")); unset IFS
@@ -47,6 +45,8 @@ function print_url() {
 
   echo "- ${url}"
 }
+
+cd "${BASE_DIR}" || exit 1
 
 printf "## Supported tags and respective \`Dockerfile\` links\n\n"
 
