@@ -40,7 +40,7 @@ jobs:
           echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
           echo "DS_KTOOLS_VERSION=${{ matrix.image.ktools }}" >> $GITHUB_ENV
           echo "DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}" >> $GITHUB_ENV
-          echo "GITHUB_JOB_NAME=build" >> $GITHUB_ENV
+          echo "GITHUB_JOB_NAME=image" >> $GITHUB_ENV
           echo "ROOT=${{ matrix.image.root }}" >> $GITHUB_ENV
           echo "SLACK_COLOR_FAILURE=#cc1f2d" >> $GITHUB_ENV
           echo "SLACK_COLOR_SUCCESS=#24a943" >> $GITHUB_ENV
@@ -49,13 +49,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
       - name: Login to GHCR
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name != 'pull_request' }}
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
@@ -95,12 +95,12 @@ jobs:
           tags: ${{ steps.debian-meta.outputs.tags }}
           labels: ${{ steps.debian-meta.outputs.labels }}
       - name: Prepare success Slack notification
-        if: success()
+        if: ${{ success() }}
         run: echo "SLACK_CUSTOM_PAYLOAD=${SLACK_CUSTOM_PAYLOAD}" >> $GITHUB_ENV
         env:
           SLACK_CUSTOM_PAYLOAD: '{"channel":"${{ secrets.SLACK_CHANNEL }}","attachments":[{"color":"{{ SLACK_COLOR_SUCCESS }}","fallback":"GitHub Actions {{ GITHUB_WORKFLOW }} / {{ GITHUB_JOB_NAME }} / {{ DS_MOD_TOOLS_VERSION }} job of {{ GITHUB_REPOSITORY }}@{{ BRANCH_NAME }} by {{ GITHUB_ACTOR }} has passed","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"GitHub Actions <https://github.com/{{ GITHUB_REPOSITORY }}/actions/runs/{{ GITHUB_RUN_ID }}|{{ GITHUB_WORKFLOW }} / {{ GITHUB_JOB_NAME }} / {{ DS_MOD_TOOLS_VERSION }}> job of <https://github.com/{{ GITHUB_REPOSITORY }}|{{ GITHUB_REPOSITORY }}>@<https://github.com/{{ GITHUB_REPOSITORY }}/tree/{{ BRANCH_NAME }}|{{ BRANCH_NAME }}> by <https://github.com/{{ GITHUB_ACTOR }}|{{ GITHUB_ACTOR }}> has passed"}}]}]}'
       - name: Prepare failure Slack notification
-        if: failure()
+        if: ${{ failure() }}
         run: echo "SLACK_CUSTOM_PAYLOAD=${SLACK_CUSTOM_PAYLOAD}" >> $GITHUB_ENV
         env:
           SLACK_CUSTOM_PAYLOAD: '{"channel":"${{ secrets.SLACK_CHANNEL }}","attachments":[{"color":"{{ SLACK_COLOR_FAILURE }}","fallback":"GitHub Actions {{ GITHUB_WORKFLOW }} / {{ GITHUB_JOB_NAME }} / {{ DS_MOD_TOOLS_VERSION }} job of {{ GITHUB_REPOSITORY }}@{{ BRANCH_NAME }} by {{ GITHUB_ACTOR }} has failed","blocks":[{"type":"section","text":{"type":"mrkdwn","text":"GitHub Actions <https://github.com/{{ GITHUB_REPOSITORY }}/actions/runs/{{ GITHUB_RUN_ID }}|{{ GITHUB_WORKFLOW }} / {{ GITHUB_JOB_NAME }} / {{ DS_MOD_TOOLS_VERSION }}> job of <https://github.com/{{ GITHUB_REPOSITORY }}|{{ GITHUB_REPOSITORY }}>@<https://github.com/{{ GITHUB_REPOSITORY }}/tree/{{ BRANCH_NAME }}|{{ BRANCH_NAME }}> by <https://github.com/{{ GITHUB_ACTOR }}|{{ GITHUB_ACTOR }}> has failed"}}]}]}'
