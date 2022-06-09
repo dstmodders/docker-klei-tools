@@ -10,9 +10,9 @@ _This repository uses a fork [dstmodders/klei-tools][] instead of the original
 [kleientertainment/ds_mod_tools][]. All tags prefixed with "official" point to
 [official releases][]. See [releases][] and [tags][] to learn more._
 
-- [`1.0.0-ktools-4.5.1-debian`, `1.0.0-ktools-4.5.1`, `1.0.0`, `debian`, `latest`](https://github.com/dstmodders/docker-klei-tools/blob/5409b46b2744a4d9270fb1af19e830b318fb724c/latest/debian/Dockerfile)
+- [`1.0.0-ktools-4.5.1-debian`, `1.0.0-ktools-4.5.1`, `1.0.0`, `debian`, `latest`](https://github.com/dstmodders/docker-klei-tools/blob/5f0fb7c61966b8cd9757c35cb6cf1e2032d04942/latest/debian/Dockerfile)
 - [`1.0.0-ktools-4.5.0-debian`, `1.0.0-ktools-4.5.0`](https://github.com/dstmodders/docker-klei-tools/blob/4d1d19aa55df22515a280acb9126c7fa988cc072/latest/debian/Dockerfile)
-- [`official-ktools-4.4.0-debian`, `official-ktools-4.4.0`, `official`, `official-debian`, `official-latest`](https://github.com/dstmodders/docker-klei-tools/blob/5409b46b2744a4d9270fb1af19e830b318fb724c/official/debian/Dockerfile)
+- [`official-ktools-4.4.0-debian`, `official-ktools-4.4.0`, `official`, `official-debian`, `official-latest`](https://github.com/dstmodders/docker-klei-tools/blob/5f0fb7c61966b8cd9757c35cb6cf1e2032d04942/official/debian/Dockerfile)
 
 ## Overview
 
