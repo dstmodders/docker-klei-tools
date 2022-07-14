@@ -36,7 +36,7 @@ _This repository uses a fork [dstmodders/klei-tools][] instead of the original
 | `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | Path to `scml`              |
 | `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | Version (release or commit) |
 | `DS` or `DST`               | `/opt/dont_starve`                       | Path to the game directory  |
-| `IMAGEMAGICK_VERSION`       | `7.1.0-40`                               | [ImageMagick][] version     |
+| `IMAGEMAGICK_VERSION`       | `7.1.0-43`                               | [ImageMagick][] version     |
 
 ## Usage
 
