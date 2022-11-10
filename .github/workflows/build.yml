@@ -84,7 +84,7 @@ jobs:
         with:
           context: .
           file: ${{ env.ROOT }}/debian/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/386
           pull: true
           push: ${{ !env.ACT && github.ref == 'refs/heads/main' }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/klei-tools:${{ !matrix.image.official && format('{0}-', env.DS_MOD_TOOLS_VERSION) || 'official-' }}ktools-${{ env.DS_KTOOLS_VERSION }}-debian
