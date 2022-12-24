@@ -30,13 +30,13 @@ RUN rm -Rf /data/ \
     wget \
   && apt-get clean \
   && apt-get autoremove -y \
-  && rm -Rf /var/lib/apt/lists/* \
   && rm -Rf \
     /etc/ca-certificates.conf \
     /etc/ssl/ \
     /root/.cache/ \
     /root/.wget-hsts \
     /tmp/* \
+    /var/lib/apt/lists/* \
     /var/log/alternatives.log \
     /var/log/apt/ \
     /var/log/dpkg.log
@@ -50,6 +50,7 @@ ENV DS_MOD_TOOLS_AUTOCOMPILER="${DS_MOD_TOOLS}/autocompiler"
 ENV DS_MOD_TOOLS_PNG="${DS_MOD_TOOLS}/png"
 ENV DS_MOD_TOOLS_SCML="${DS_MOD_TOOLS}/scml"
 ENV DS_MOD_TOOLS_VERSION="${DS_MOD_TOOLS_VERSION}"
+ENV PATH="${PATH}:/opt/klei-tools/mod_tools"
 
 # hadolint ignore=DL3003
 RUN apt-get update \
@@ -91,7 +92,6 @@ RUN apt-get update \
     wget \
   && apt-get clean \
   && apt-get autoremove -y \
-  && rm -Rf /var/lib/apt/lists/* \
   && rm -Rf \
     "${DS:?}/"* \
     /etc/ca-certificates.conf \
@@ -99,6 +99,7 @@ RUN apt-get update \
     /opt/temp/* \
     /root/.wget-hsts \
     /tmp/* \
+    /var/lib/apt/lists/* \
     /var/log/alternatives.log \
     /var/log/apt/ \
     /var/log/dpkg.log
