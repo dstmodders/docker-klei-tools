@@ -10,9 +10,9 @@ _This repository uses a fork [dstmodders/klei-tools] instead of the original
 [kleientertainment/ds_mod_tools]. All tags prefixed with "official" point to
 [official releases]. See [releases] and [tags] to learn more._
 
-- [`1.0.0-ktools-4.5.1-debian`, `1.0.0-ktools-4.5.1`, `1.0.0`, `debian`, `latest`](https://github.com/dstmodders/docker-klei-tools/blob/46e5d589fa9ddd7c9994b4d65e8d6b85c933d768/latest/debian/Dockerfile)
+- [`1.0.0-ktools-4.5.1-debian`, `1.0.0-ktools-4.5.1`, `1.0.0`, `debian`, `latest`](https://github.com/dstmodders/docker-klei-tools/blob/8ba754446789fff5d78bd09ba1436cac8cf62b41/latest/debian/Dockerfile)
 - [`1.0.0-ktools-4.5.0-debian`, `1.0.0-ktools-4.5.0`](https://github.com/dstmodders/docker-klei-tools/blob/4d1d19aa55df22515a280acb9126c7fa988cc072/latest/debian/Dockerfile)
-- [`official-ktools-4.4.0-debian`, `official-ktools-4.4.0`, `official`, `official-debian`, `official-latest`](https://github.com/dstmodders/docker-klei-tools/blob/46e5d589fa9ddd7c9994b4d65e8d6b85c933d768/official/debian/Dockerfile)
+- [`official-ktools-4.4.0-debian`, `official-ktools-4.4.0`, `official`, `official-debian`, `official-latest`](https://github.com/dstmodders/docker-klei-tools/blob/8ba754446789fff5d78bd09ba1436cac8cf62b41/official/debian/Dockerfile)
 
 ## Overview
 
@@ -35,7 +35,7 @@ _This repository uses a fork [dstmodders/klei-tools] instead of the original
 | `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | Path to `scml`              |
 | `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | Version (release or commit) |
 | `DS` or `DST`               | `/opt/dont_starve`                       | Path to the game directory  |
-| `IMAGEMAGICK_VERSION`       | `7.1.0-55`                               | [ImageMagick] version       |
+| `IMAGEMAGICK_VERSION`       | `7.1.1-6`                                | [ImageMagick] version       |
 
 ## Usage
 
