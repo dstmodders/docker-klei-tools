@@ -20,7 +20,6 @@ RUN rm -Rf /data/ \
     --create-home \
     klei-tools \
   && apt-get update \
-  && apt-get remove -y openssl \
   && apt-get install -y --no-install-recommends \
     build-essential='12.9' \
     ca-certificates='20230311' \
