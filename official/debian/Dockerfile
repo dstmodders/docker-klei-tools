@@ -2,13 +2,14 @@ ARG DS_KTOOLS_VERSION="4.4.0"
 
 FROM dstmodders/ktools:official-${DS_KTOOLS_VERSION}-debian
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ARG OPENSSL_VERSION="1.1.1"
 ARG PYTHON_VERSION="2.7.18"
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 USER root
-
 WORKDIR /tmp/
+# hadolint ignore=DL3003
 RUN rm -Rf /data/ \
   && userdel -r ktools \
   && groupadd --gid 1000 klei-tools \
@@ -26,7 +27,7 @@ RUN rm -Rf /data/ \
     unzip='6.0-28' \
     wget='1.21.3-1+b2' \
   # openssh
-  && wget "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" \
+  && wget -q "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" \
   && tar xzf "openssl-${OPENSSL_VERSION}.tar.gz" \
   && cd "openssl-${OPENSSL_VERSION}" \
   && ./config \
@@ -37,7 +38,7 @@ RUN rm -Rf /data/ \
   && echo '/usr/local/ssl/lib' > "/etc/ld.so.conf.d/openssl-${OPENSSL_VERSION}.conf" \
   && ldconfig \
   # python
-  && wget "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
+  && wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
   && tar xzf "Python-${PYTHON_VERSION}.tgz" \
   && cd "Python-${PYTHON_VERSION}" \
   && ./configure --enable-shared --prefix=/usr \
