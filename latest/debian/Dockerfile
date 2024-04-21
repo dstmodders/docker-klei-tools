@@ -11,14 +11,7 @@ USER root
 WORKDIR /tmp/
 # hadolint ignore=DL3003
 RUN rm -Rf /data/ \
-  && userdel -r ktools \
-  && groupadd --gid 1000 klei-tools \
-  && useradd \
-    --uid 1000 \
-    --gid klei-tools \
-    --shell /bin/bash \
-    --create-home \
-    klei-tools \
+  && sed -i 's/ktools/klei-tools/g' /etc/passwd /etc/group \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
     build-essential='12.9' \
