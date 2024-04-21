@@ -52,6 +52,7 @@ RUN rm -Rf /data/ \
   && rm ./get-pip.py \
   # clean
   && apt-get remove -y \
+    build-essential \
     ca-certificates \
     wget \
   && apt-get clean \
