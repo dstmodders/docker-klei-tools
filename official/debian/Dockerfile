@@ -10,7 +10,7 @@ ARG PYTHON_VERSION="2.7.18"
 USER root
 WORKDIR /tmp/
 # hadolint ignore=DL3003
-RUN rm -Rf /data/ \
+RUN rm -rf /data/ \
   && sed -i 's/ktools/klei-tools/g' /etc/passwd /etc/group \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -26,8 +26,7 @@ RUN rm -Rf /data/ \
   && make -j "$(nproc)" \
   && make install \
   && cd .. \
-  && rm -Rf "openssl-${OPENSSL_VERSION}.tar.gz" "openssl-${OPENSSL_VERSION}" \
-  && echo '/usr/local/ssl/lib' > "/etc/ld.so.conf.d/openssl-${OPENSSL_VERSION}.conf" \
+  && rm -rf "openssl-${OPENSSL_VERSION}.tar.gz" "openssl-${OPENSSL_VERSION}" \
   && ldconfig \
   # python
   && wget -q "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz" \
@@ -37,7 +36,7 @@ RUN rm -Rf /data/ \
   && make -j "$(nproc)" \
   && make install \
   && cd .. \
-  && rm -Rf "Python-${PYTHON_VERSION}.tgz" "Python-${PYTHON_VERSION}" \
+  && rm -rf "Python-${PYTHON_VERSION}.tgz" "Python-${PYTHON_VERSION}" \
   # pip + packages
   && wget -q "https://bootstrap.pypa.io/pip/$(echo "${PYTHON_VERSION}" | cut -d. -f1,2)/get-pip.py" \
   && python2.7 ./get-pip.py \
@@ -50,7 +49,7 @@ RUN rm -Rf /data/ \
     wget \
   && apt-get clean \
   && apt-get autoremove -y \
-  && rm -Rf \
+  && rm -rf \
     /etc/ca-certificates.conf \
     /etc/ssl/ \
     /root/.cache/ \
@@ -94,7 +93,7 @@ RUN apt-get update \
   && mv \
     ../build/linux/mod_tools/buildtools/linux/Python27/Python27/Lib/site-packages/klei/ \
     /usr/lib/python2.7/site-packages/ \
-  && rm -Rf \
+  && rm -rf \
     ../build/linux/mod_tools/buildtools/ \
     ../build/linux/mod_tools/dont_starve.sublime-project \
     ../build/linux/mod_tools/mod_tools/ \
@@ -117,11 +116,12 @@ RUN apt-get update \
     premake4 \
   && apt-get clean \
   && apt-get autoremove -y \
-  && rm -Rf \
+  && rm -rf \
     "${DS:?}/"* \
     /etc/ca-certificates.conf \
     /etc/ssl/ \
     /opt/temp/* \
+    /root/.cache/ \
     /root/.wget-hsts \
     /tmp/* \
     /var/lib/apt/lists/* \
