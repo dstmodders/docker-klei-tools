@@ -4,7 +4,7 @@ FROM dstmodders/ktools:${DS_KTOOLS_VERSION}-debian
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-ARG OPENSSL_VERSION="1.1.1"
+ARG OPENSSL_VERSION="1.1.1w"
 ARG PYTHON_VERSION="2.7.18"
 
 USER root
@@ -18,7 +18,7 @@ RUN rm -rf /data/ \
     ca-certificates='20230311' \
     unzip='6.0-28' \
     wget='1.21.3-1+b2' \
-  # openssh
+  # openssl
   && wget -q "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" \
   && tar xzf "openssl-${OPENSSL_VERSION}.tar.gz" \
   && cd "openssl-${OPENSSL_VERSION}" \
