@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG OPENSSL_VERSION="1.1.1w"
 ARG PYTHON_VERSION="2.7.18"
+ARG TARGETPLATFORM
 
 USER root
 WORKDIR /tmp/
@@ -17,12 +18,19 @@ RUN rm -rf /data/ \
     build-essential='12.9' \
     ca-certificates='20230311' \
     unzip='6.0-28' \
-    wget='1.21.3-1+b2' \
+    wget="$(if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then echo '1.21.3-1+b1'; else echo '1.21.3-1+b2'; fi)" \
+  && if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then \
+    apt-get install -y --no-install-recommends gcc-multilib='4:12.2.0-3'; \
+  fi \
   # openssl
   && wget -q "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" \
   && tar xzf "openssl-${OPENSSL_VERSION}.tar.gz" \
   && cd "openssl-${OPENSSL_VERSION}" \
-  && ./config \
+  && if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then \
+    setarch i386 ./config; \
+  else \
+    ./config; \
+  fi \
   && make -j "$(nproc)" \
   && make install \
   && cd .. \
@@ -61,6 +69,7 @@ RUN rm -rf /data/ \
     /var/log/dpkg.log \
   # smoke tests
   && python2.7 --version \
+  && python2.7 -c 'import ssl; print(ssl.OPENSSL_VERSION)' \
   && pip --version \
   && pip list
 
@@ -81,7 +90,7 @@ RUN apt-get update \
     build-essential='12.9' \
     ca-certificates='20230311' \
     premake4='4.3+repack1-2+b1' \
-    wget='1.21.3-1+b2' \
+    wget="$(if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then echo '1.21.3-1+b1'; else echo '1.21.3-1+b2'; fi)" \
   # klei-tools \
   && wget -q "https://github.com/dstmodders/klei-tools/archive/refs/tags/v${DS_MOD_TOOLS_VERSION}.tar.gz" \
   && tar xzf "v${DS_MOD_TOOLS_VERSION}.tar.gz" \
