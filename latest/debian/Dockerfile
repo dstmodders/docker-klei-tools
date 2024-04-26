@@ -137,5 +137,6 @@ RUN apt-get update \
     /var/log/apt/ \
     /var/log/dpkg.log
 
+USER klei-tools
 WORKDIR "${DS_MOD_TOOLS}"
 CMD ["/opt/klei-tools/mod_tools/autocompiler"]
