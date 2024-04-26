@@ -19,23 +19,11 @@
 
 [Docker] images for modding tools of Klei Entertainment's game [Don't Starve].
 
-- [Environment variables](#environment-variables)
 - [Usage](#usage)
+- [Supported environment variables](#supported-environment-variables)
+- [Supported build arguments](#supported-build-arguments)
+- [Supported architectures](#supported-architectures)
 - [Build](#build)
-
-## Environment variables
-
-| Name                        | Value                                    | Description                 |
-| --------------------------- | ---------------------------------------- | --------------------------- |
-| `DS_KTOOLS_KRANE`           | `/usr/local/bin/krane`                   | Path to [ktools] `krane`    |
-| `DS_KTOOLS_KTECH`           | `/usr/local/bin/ktech`                   | Path to [ktools] `ktech`    |
-| `DS_KTOOLS_VERSION`         | `4.5.1`                                  | [ktools] version            |
-| `DS_MOD_TOOLS_AUTOCOMPILER` | `/opt/klei-tools/mod_tools/autocompiler` | Path to `autocompiler`      |
-| `DS_MOD_TOOLS_PNG`          | `/opt/klei-tools/mod_tools/png`          | Path to `png`               |
-| `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | Path to `scml`              |
-| `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | Version (release or commit) |
-| `DS` or `DST`               | `/opt/dont_starve`                       | Path to the game directory  |
-| `IMAGEMAGICK_VERSION`       | `7.1.1-6`                                | [ImageMagick] version       |
 
 ## Usage
 
@@ -70,48 +58,64 @@ mounting the game directory to the container. Common paths include:
 
 ```shell
 $ export DST_DIR='/path/to/game/'
-$ docker run --rm -u klei-tools -v "${DST_DIR}:/opt/dont_starve/" dstmodders/klei-tools
+$ docker run --rm -v "${DST_DIR}:/opt/dont_starve/" dstmodders/klei-tools
 ```
 
 #### CMD (Windows)
 
 ```cmd
 > set DST_DIR='C:\Path\To\Game'
-> docker run --rm -u klei-tools -v "%DST_DIR%:/opt/dont_starve/" dstmodders/klei-tools
+> docker run --rm -v "%DST_DIR%:/opt/dont_starve/" dstmodders/klei-tools
 ```
 
 #### PowerShell (Windows)
 
 ```powershell
 PS:\> $Env:DST_DIR = 'C:\Path\To\Game'
-PS:\> docker run --rm -u klei-tools -v "$($Env:DST_DIR):/opt/dont_starve/" dstmodders/klei-tools
+PS:\> docker run --rm -v "$($Env:DST_DIR):/opt/dont_starve/" dstmodders/klei-tools
 ```
+
+## Supported environment variables
+
+| Name                        | Value                                    | Description                              |
+| --------------------------- | ---------------------------------------- | ---------------------------------------- |
+| `DS_KTOOLS_KRANE`           | `/usr/local/bin/krane`                   | [ktools] `krane` path                    |
+| `DS_KTOOLS_KTECH`           | `/usr/local/bin/ktech`                   | [ktools] `ktech` path                    |
+| `DS_KTOOLS_VERSION`         | `4.5.1`                                  | [ktools] version                         |
+| `DS_MOD_TOOLS_AUTOCOMPILER` | `/opt/klei-tools/mod_tools/autocompiler` | [klei-tools] `autocompiler` path         |
+| `DS_MOD_TOOLS_PNG`          | `/opt/klei-tools/mod_tools/png`          | [klei-tools] `png` path                  |
+| `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | [klei-tools] `scml` path                 |
+| `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | [klei-tools] version (release or commit) |
+| `DS` or `DST`               | `/opt/dont_starve`                       | Game directory path                      |
+| `IMAGEMAGICK_VERSION`       | `7.1.1-6`                                | [ImageMagick] version                    |
+
+## Supported build arguments
+
+| Name                | Image                    | Default              | Description           |
+| ------------------- | ------------------------ | -------------------- | --------------------- |
+| `DS_KTOOLS_VERSION` | `latest`<br />`official` | `4.5.1`<br />`4.4.0` | Sets [ktools] version |
+
+## Supported architectures
+
+| Image      | Architecture(s)            |
+| ---------- | -------------------------- |
+| `latest`   | `linux/amd64`, `linux/386` |
+| `official` | `linux/amd64`, `linux/386` |
 
 ## Build
 
 To build images locally:
 
 ```shell
-$ docker build ./latest/debian/ --tag='dstmodders/klei-tools:latest'
-$ docker build ./official/debian/ --tag='dstmodders/klei-tools:official'
+$ docker build --tag='dstmodders/klei-tools:latest' ./latest/debian/
+$ docker build --tag='dstmodders/klei-tools:official' ./official/debian/
 ```
 
-To build images locally using [buildx] to target multiple platforms, ensure that
-your builder is running. If you are using [QEMU] emulation, you may also need to
-enable [qemu-user-static].
-
-In overall, to create your builder and enable [QEMU] emulation:
+Respectively, to build multi-platform images using [buildx]:
 
 ```shell
-$ docker buildx create --name mybuilder --use --bootstrap
-$ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-```
-
-Respectively, to build multi-platform images locally:
-
-```shell
-$ docker buildx build ./latest/debian/ --platform='linux/amd64,linux/386' --tag='dstmodders/klei-tools:latest'
-$ docker buildx build ./official/debian/ --platform='linux/amd64,linux/386' --tag='dstmodders/klei-tools:official'
+$ docker buildx build --platform='linux/amd64,linux/386' --tag='dstmodders/klei-tools:latest' ./latest/debian/
+$ docker buildx build --platform='linux/amd64,linux/386' --tag='dstmodders/klei-tools:official' ./official/debian/
 ```
 
 ## License
@@ -127,9 +131,8 @@ Released under the [MIT License](https://opensource.org/licenses/MIT).
 [dstmodders/klei-tools]: https://github.com/dstmodders/klei-tools
 [fork releases]: https://github.com/dstmodders/klei-tools/releases
 [imagemagick]: https://imagemagick.org/index.php
+[klei-tools]: https://github.com/dstmodders/klei-tools
 [kleientertainment/ds_mod_tools]: https://github.com/kleientertainment/ds_mod_tools
 [ktools]: https://github.com/dstmodders/ktools
 [official releases]: https://github.com/kleientertainment/ds_mod_tools/releases
-[qemu-user-static]: https://github.com/multiarch/qemu-user-static
-[qemu]: https://www.qemu.org/
 [tags]: https://hub.docker.com/r/dstmodders/klei-tools/tags
