@@ -1,115 +1,106 @@
 #!/usr/bin/env bash
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
-COMMIT_ID=$(git rev-parse --verify HEAD)
+COMMIT_ID="$(git rev-parse --verify HEAD)"
 DISTS=('debian')
-URL='https://github.com/dstmodders/docker-klei-tools'
-VERSIONS=()
+JSON="$(cat ./versions.json)"
+REPOSITORY='https://github.com/dstmodders/docker-klei-tools'
+VERSIONS_KEYS=()
 
-mapfile -t VERSIONS < <(jq -r 'keys[]' ./versions.json)
+mapfile -t VERSIONS_KEYS < <(jq -r 'keys[]' <<< "$JSON")
 # shellcheck disable=SC2207
-IFS=$'\n' VERSIONS=($(sort -rV <<< "${VERSIONS[*]}")); unset IFS
+IFS=$'\n' VERSIONS_KEYS=($(sort -rV <<< "${VERSIONS_KEYS[*]}")); unset IFS
 
 readonly BASE_DIR
 readonly COMMIT_ID
 readonly DISTS
-readonly URL
-readonly VERSIONS
-
-# https://stackoverflow.com/a/17841619
-function join_by {
-  local d="${1-}"
-  local f="${2-}"
-  if shift 2; then
-    printf %s "$f" "${@/#/$d}";
-  fi
-}
-
-function jq_value {
-  local from="$1"
-  local key="$2"
-  local name="$3"
-  jq -r ".[${key}] | .${name}" "${from}"
-}
+readonly JSON
+readonly REPOSITORY
+readonly VERSIONS_KEYS
 
 function print_url() {
   local tags="$1"
   local commit="$2"
-  local dist="$3"
-  local official="$4"
-
-  local url="[${tags}](${URL}/blob/${commit}/latest/${dist}/Dockerfile)"
-  if [ "${official}" == 'true' ]; then
-    url="[${tags}](${URL}/blob/${commit}/official/${dist}/Dockerfile)"
-  fi
-
-  echo "- ${url}"
+  local directory="$3"
+  local url="[$tags]($REPOSITORY/blob/$commit/$directory/Dockerfile)"
+  echo "- $url"
 }
 
-cd "${BASE_DIR}" || exit 1
+cd "$BASE_DIR" || exit 1
 
 printf "## Supported tags and respective \`Dockerfile\` links\n\n"
 
-for v in "${VERSIONS[@]}"; do
+# reference:
+#   1.0.0-ktools-4.5.1-debian, 1.0.0-ktools-4.5.1, 1.0.0, debian, latest
+#   1.0.0-ktools-4.5.0-debian, 1.0.0-ktools-4.5.0
+#   official-ktools-4.4.0-debian, official-ktools-4.4.0, official, official-debian, official-latest
+for key in "${VERSIONS_KEYS[@]}"; do
   for dist in "${DISTS[@]}"; do
-    commit="${COMMIT_ID}"
-    ktools=$(jq_value ./versions.json "${v}" 'ktools')
-    latest=$(jq_value ./versions.json "${v}" 'latest')
-    official=$(jq_value ./versions.json "${v}" 'official')
-    previous=$(jq -c ".[${v}] | .previous" < ./versions.json)
-    version=$(jq -r ".[${v}] | .version" ./versions.json)
+    ktools=$(jq -r ".[$key] | .ktools" <<< "$JSON")
+    latest=$(jq -r ".[$key] | .latest" <<< "$JSON")
+    official=$(jq -r ".[$key] | .official" <<< "$JSON")
+    previous=$(jq -r ".[$key] | .previous" <<< "$JSON")
+    version=$(jq -r ".[$key] | .version" <<< "$JSON")
 
     if [ "${#version}" == 40 ]; then
-      tag_dist="${dist}"
-      tag_full="ktools-${ktools}"
-      tag_full_dist="${tag_full}-${dist}"
+      tag_dist="$dist"
+      tag_full="ktools-$ktools"
+      tag_full_dist="$tag_full-$dist"
       tag_version=""
     else
-      tag_dist="${dist}"
-      tag_full="${version}-ktools-${ktools}"
-      tag_full_dist="${tag_full}-${dist}"
-      tag_version="${version}"
+      tag_dist="$dist"
+      tag_full="$version-ktools-$ktools"
+      tag_full_dist="$tag_full-$dist"
+      tag_version="$version"
     fi
 
-    if [ "${official}" == 'true' ]; then
-      tag_dist="official-${tag_dist}"
-      tag_full="official-${tag_full}"
-      tag_full_dist="${tag_full}-${dist}"
+    if [ "$official" == 'true' ]; then
+      tag_dist="official-$tag_dist"
+      tag_full="official-$tag_full"
+      tag_full_dist="$tag_full-$dist"
 
-      if [ "${tag_version}" == '' ]; then
+      if [ "$tag_version" == '' ]; then
         tag_version="official"
       else
-        tag_version="official-${tag_version}"
+        tag_version="official-$tag_version"
       fi
     fi
 
-    tags=''
-    if [ "${dist}" == 'debian' ]; then
-      tags="\`${tag_full_dist}\`, \`${tag_full}\`, \`${tag_version}\`, \`${tag_dist}\`"
-      if [ "${latest}" == 'true' ]; then
-        if [ "${official}" == 'true' ]; then
-          tags="${tags}, \`official-latest\`"
-        else
-          tags="${tags}, \`latest\`"
+    tags="\`$tag_full\`, \`$tag_dist\`"
+    case "$dist" in
+      debian)
+        tags="\`$tag_full_dist\`, \`$tag_full\`, \`$tag_version\`, \`$tag_dist\`"
+        if [ "$latest" == 'true' ]; then
+          if [ "$official" == 'true' ]; then
+            tags="$tags, \`official-latest\`"
+          else
+            tags="$tags, \`latest\`"
+          fi
         fi
-      fi
-    else
-      tags="\`${tag_full}\`, \`${tag_dist}\`"
-    fi
+        ;;
+    esac
 
-    print_url "${tags}" "${commit}" "${dist}" "${official}"
+    if [ "$official" == 'true' ]; then
+      print_url "$tags" "$COMMIT_ID" "official/$dist"
+    else
+      print_url "$tags" "$COMMIT_ID" "latest/$dist"
+    fi
   done
 
-  if [ "${previous}" != "null" ]; then
-    mapfile -t commits < <(jq -r 'keys[]' <<< "${previous}")
-    ktools=$(jq -c ".[].ktools" <<< "${previous}" | xargs)
+  if [ "$previous" != "null" ]; then
+    mapfile -t commits < <(jq -r 'keys[]' <<< "$previous")
+    ktools=$(jq -c ".[].ktools" <<< "$previous" | xargs)
 
     for dist in "${DISTS[@]}"; do
       for commit in "${commits[@]}"; do
-        tag_full="${version}-ktools-${ktools}"
-        tag_full_dist="${tag_full}-${dist}"
-        tags="\`${tag_full_dist}\`, \`${tag_full}\`"
-        print_url "${tags}" "${commit}" "${dist}" "${official}"
+        tag_full="$version-ktools-$ktools"
+        tag_full_dist="$tag_full-$dist"
+        tags="\`$tag_full_dist\`, \`$tag_full\`"
+        if [ "$official" == 'true' ]; then
+          print_url "$tags" "$commit" "official/$dist"
+        else
+          print_url "$tags" "$commit" "latest/$dist"
+        fi
       done
     done
   fi
