@@ -58,23 +58,23 @@ for key in "${VERSIONS_KEYS[@]}"; do
       tag_dist="official-$tag_dist"
       tag_full="official-$tag_full"
       tag_full_dist="$tag_full-$dist"
-
-      if [ "$tag_version" == '' ]; then
-        tag_version="official"
-      else
-        tag_version="official-$tag_version"
-      fi
+      tag_version="official-$tag_version"
     fi
 
     tags="\`$tag_full\`, \`$tag_dist\`"
     case "$dist" in
       debian)
-        tags="\`$tag_full_dist\`, \`$tag_full\`, \`$tag_version\`, \`$tag_dist\`"
+        if [ "$official" == 'true' ]; then
+          tags="\`$tag_full_dist\`, \`$tag_full\`"
+        else
+          tags="\`$tag_full_dist\`, \`$tag_full\`, \`$tag_version\`"
+        fi
+
         if [ "$latest" == 'true' ]; then
           if [ "$official" == 'true' ]; then
-            tags="$tags, \`official-latest\`"
+            tags="$tags, \`$tag_dist\`, \`official-latest\`, \`official\`"
           else
-            tags="$tags, \`latest\`"
+            tags="$tags, \`$tag_dist\`, \`latest\`"
           fi
         fi
         ;;
