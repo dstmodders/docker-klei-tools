@@ -20,7 +20,8 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      latest: ${{ steps.set-matrix.outputs.latest }}
+      official: ${{ steps.set-matrix.outputs.official }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -28,15 +29,16 @@ jobs:
         id: set-matrix
         run: |
           JSON=$(cat ./versions.json)
-          echo "matrix=$(jq -cM . <<< ${JSON})" >> $GITHUB_OUTPUT
+          echo "latest=$(jq -cM .latest <<< $JSON)" >> $GITHUB_OUTPUT
+          echo "official=$(jq -cM .official <<< $JSON)" >> $GITHUB_OUTPUT
 
-  image:
+  official:
     needs: prepare
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       matrix:
-        image: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+        image: ${{ fromJSON(needs.prepare.outputs.official) }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -57,7 +59,7 @@ jobs:
             {STATUS}
             {REF}
             klei-tools version: ${{ steps.version.outputs.klei-tools }}
-            ktools version: ${{ matrix.image.ktools }}
+            ktools version: ${{ matrix.image.ktools_version }}
           status: in-progress
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -81,29 +83,27 @@ jobs:
         id: debian-meta
         with:
           flavor: |
-            latest=${{ matrix.image.latest }}
-            prefix=${{ matrix.image.official && 'official-' || '' }},onlatest=${{ matrix.image.official || 'false' }}
+            latest=${{ matrix.image.latest || 'false' }}
+            prefix=official-,onlatest=true
           images: |
             ${{ github.repository_owner }}/klei-tools
             ghcr.io/${{ github.repository_owner }}/klei-tools
-          labels: |
-            maintainer=victor@popkov.me
+          labels: maintainer=victor@popkov.me
           tags: |
-            ${{ !matrix.image.official && format('type=raw,value={0}', matrix.image.version) || '' }}
-            type=raw,value=${{ !matrix.image.official && format('{0}-', matrix.image.version) || '' }}ktools-${{ matrix.image.ktools }}
-            type=raw,value=${{ !matrix.image.official && format('{0}-', matrix.image.version) || '' }}ktools-${{ matrix.image.ktools }}-debian
+            type=raw,value=ktools-${{ matrix.image.ktools_version }}-debian
+            type=raw,value=ktools-${{ matrix.image.ktools_version }}
             ${{ matrix.image.latest && 'type=raw,value=debian' || '' }}
-            ${{ (matrix.image.latest && matrix.image.official) && 'type=raw,prefix=,suffix=,value=official' || '' }}
+            ${{ matrix.image.latest && 'type=raw,prefix=,value=official' || '' }}
       - name: Build a Debian image
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            DS_KTOOLS_VERSION=${{ matrix.image.ktools }}
+            DS_KTOOLS_VERSION=${{ matrix.image.ktools_version }}
             DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/klei-tools:${{ !matrix.image.official && format('{0}-', matrix.image.version) || 'official-' }}ktools-${{ matrix.image.ktools }}-debian
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/klei-tools:official-ktools-${{ matrix.image.ktools_version }}-debian
           cache-to: type=inline
           context: .
-          file: ${{ matrix.image.root }}/debian/Dockerfile
+          file: ./official/debian/Dockerfile
           labels: ${{ steps.debian-meta.outputs.labels }}
           platforms: linux/amd64,linux/386
           pull: true
@@ -117,6 +117,93 @@ jobs:
             {STATUS}
             {REF}
             klei-tools version: ${{ steps.version.outputs.klei-tools }}
-            ktools version: ${{ matrix.image.ktools }}
+            ktools version: ${{ matrix.image.ktools_version }}
+          status: ${{ job.status }}
+          timestamp: ${{ steps.slack.outputs.slack-timestamp }}
+
+  latest:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        image: ${{ fromJSON(needs.prepare.outputs.latest) }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Set version outputs
+        id: version
+        run: |
+          if [[ "${{ matrix.image.version }}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "klei-tools=$(echo ${{ matrix.image.version }} | cut -c 1-7)" >> $GITHUB_OUTPUT
+          else
+            echo "klei-tools=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
+          fi
+      - name: Send Slack notification
+        uses: codedsolar/slack-action@v1
+        if: ${{ github.event_name != 'pull_request' }}
+        id: slack
+        with:
+          fields: |
+            {STATUS}
+            {REF}
+            klei-tools version: ${{ steps.version.outputs.klei-tools }}
+            ktools version: ${{ matrix.image.ktools_version }}
+          status: in-progress
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Prepare Docker meta for a Debian image
+        uses: docker/metadata-action@v5
+        id: debian-meta
+        with:
+          flavor: latest=${{ matrix.image.latest || 'false' }}
+          images: |
+            ${{ github.repository_owner }}/klei-tools
+            ghcr.io/${{ github.repository_owner }}/klei-tools
+          labels: maintainer=victor@popkov.me
+          tags: |
+            type=raw,value=${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}-debian
+            type=raw,value=${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}
+            type=raw,value=${{ matrix.image.version }}
+            ${{ matrix.image.latest && 'type=raw,value=debian' || '' }}
+      - name: Build a Debian image
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            DS_KTOOLS_VERSION=${{ matrix.image.ktools_version }}
+            DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}
+          cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/klei-tools:${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}-debian
+          cache-to: type=inline
+          context: .
+          file: ./latest/debian/Dockerfile
+          labels: ${{ steps.debian-meta.outputs.labels }}
+          platforms: linux/amd64,linux/386
+          pull: true
+          push: ${{ !env.ACT && github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.debian-meta.outputs.tags }}
+      - name: Update Slack notification
+        uses: codedsolar/slack-action@v1
+        if: ${{ github.event_name != 'pull_request' && always() }}
+        with:
+          fields: |
+            {STATUS}
+            {REF}
+            klei-tools version: ${{ steps.version.outputs.klei-tools }}
+            ktools version: ${{ matrix.image.ktools_version }}
           status: ${{ job.status }}
           timestamp: ${{ steps.slack.outputs.slack-timestamp }}

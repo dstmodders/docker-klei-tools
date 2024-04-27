@@ -1,20 +1,21 @@
-[
-  {
-    "version": "3fe0cad89848c9d0fca8a4139a0491d188497636",
-    "ktools": "4.4.0",
-    "latest": true,
-    "official": true,
-    "root": "./official"
-  },
-  {
-    "version": "1.0.0",
-    "ktools": "4.5.1",
-    "latest": true,
-    "root": "./latest",
-    "previous": {
-      "4d1d19aa55df22515a280acb9126c7fa988cc072": {
-        "ktools": "4.5.0"
+{
+  "latest": [
+    {
+      "version": "1.0.0",
+      "ktools_version": "4.5.1",
+      "latest": true,
+      "previous": {
+        "4d1d19aa55df22515a280acb9126c7fa988cc072": {
+          "ktools_version": "4.5.0"
+        }
       }
     }
-  }
-]
+  ],
+  "official": [
+    {
+      "version": "3fe0cad89848c9d0fca8a4139a0491d188497636",
+      "ktools_version": "4.4.0",
+      "latest": true
+    }
+  ]
+}
