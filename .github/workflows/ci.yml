@@ -43,7 +43,7 @@ jobs:
         run: prettier --check . || true
       - name: Output Prettier results
         id: prettier
-        run: echo "issues=$(prettier --list-different . | wc -l)" >> $GITHUB_OUTPUT
+        run: echo "issues=$(prettier --list-different . | wc -l)" >> "$GITHUB_OUTPUT"
       - name: Lint using Hadolint (latest Debian)
         uses: hadolint/hadolint-action@v3.1.0
         id: hadolint-latest-debian
@@ -62,9 +62,11 @@ jobs:
           latest_debian_issues="$(echo '${{ steps.hadolint-latest-debian.outputs.results }}' | sed '/^$/d' | sed '$!N; /^\n$/D' | wc -l)"
           official_debian_issues="$(echo '${{ steps.hadolint-official-debian.outputs.results }}' | sed '/^$/d' | sed '$!N; /^\n$/D' | wc -l)"
 
-          echo "latest-debian-issues=$latest_debian_issues" >> $GITHUB_OUTPUT
-          echo "official-debian-issues=$official_debian_issues" >> $GITHUB_OUTPUT
-          echo "issues=$((latest_debian_issues + official_debian_issues))" >> $GITHUB_OUTPUT
+          {
+            echo "latest-debian-issues=$latest_debian_issues"
+            echo "official-debian-issues=$official_debian_issues"
+            echo "issues=$((latest_debian_issues + official_debian_issues))"
+          } >> "$GITHUB_OUTPUT"
       - name: Check results
         run: |
           hadolint_latest_debian_issues="${{ steps.hadolint.outputs.latest-debian-issues }}"

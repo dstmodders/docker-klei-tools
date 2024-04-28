@@ -30,9 +30,9 @@ jobs:
       - name: Set matrix
         id: set-matrix
         run: |
-          JSON=$(cat ./versions.json)
-          echo "latest=$(jq -cM .latest <<< $JSON)" >> $GITHUB_OUTPUT
-          echo "official=$(jq -cM .official <<< $JSON)" >> $GITHUB_OUTPUT
+          JSON="$(cat ./versions.json)"
+          echo "latest=$(jq -cM .latest <<< "$JSON")" >> "$GITHUB_OUTPUT"
+          echo "official=$(jq -cM .official <<< "$JSON")" >> "$GITHUB_OUTPUT"
 
   official:
     needs: prepare
@@ -48,9 +48,9 @@ jobs:
         id: version
         run: |
           if [[ "${{ matrix.image.version }}" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "klei-tools=$(echo ${{ matrix.image.version }} | cut -c 1-7)" >> $GITHUB_OUTPUT
+            echo "klei-tools=$(echo '${{ matrix.image.version }}' | cut -c 1-7)" >> "$GITHUB_OUTPUT"
           else
-            echo "klei-tools=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
+            echo "klei-tools=${{ matrix.image.version }}" >> "$GITHUB_OUTPUT"
           fi
       - name: Send Slack notification
         uses: codedsolar/slack-action@v1
@@ -137,9 +137,9 @@ jobs:
         id: version
         run: |
           if [[ "${{ matrix.image.version }}" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "klei-tools=$(echo ${{ matrix.image.version }} | cut -c 1-7)" >> $GITHUB_OUTPUT
+            echo "klei-tools=$(echo '${{ matrix.image.version }}' | cut -c 1-7)" >> "$GITHUB_OUTPUT"
           else
-            echo "klei-tools=${{ matrix.image.version }}" >> $GITHUB_OUTPUT
+            echo "klei-tools=${{ matrix.image.version }}" >> "$GITHUB_OUTPUT"
           fi
       - name: Send Slack notification
         uses: codedsolar/slack-action@v1
