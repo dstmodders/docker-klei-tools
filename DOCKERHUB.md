@@ -1,8 +1,7 @@
 ## Supported tags and respective `Dockerfile` links
 
-- [`1.0.0-ktools-4.5.1-debian`, `1.0.0-ktools-4.5.1`, `1.0.0`, `debian`, `latest`](https://github.com/dstmodders/docker-klei-tools/blob/bf1f13ef9f272217a1b357aa1e4ea4ac8ee68edf/latest/debian/Dockerfile)
-- [`1.0.0-ktools-4.5.0-debian`, `1.0.0-ktools-4.5.0`](https://github.com/dstmodders/docker-klei-tools/blob/4d1d19aa55df22515a280acb9126c7fa988cc072/latest/debian/Dockerfile)
-- [`official-ktools-4.4.0-debian`, `official-ktools-4.4.0`, `official`, `official-debian`, `official-latest`](https://github.com/dstmodders/docker-klei-tools/blob/bf1f13ef9f272217a1b357aa1e4ea4ac8ee68edf/official/debian/Dockerfile)
+- [`1.0.0-ktools-4.5.1-debian`, `1.0.0-ktools-4.5.1`, `1.0.0`, `debian`, `latest`](https://github.com/dstmodders/docker-klei-tools/blob/bfbff346ff56d70ada5cd99d0bb46edec2412253/latest/debian/Dockerfile)
+- [`official-ktools-4.4.0-debian`, `official-ktools-4.4.0`, `official-debian`, `official-latest`, `official`](https://github.com/dstmodders/docker-klei-tools/blob/bfbff346ff56d70ada5cd99d0bb46edec2412253/official/debian/Dockerfile)
 
 ## Overview
 
