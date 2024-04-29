@@ -3,12 +3,7 @@
     {
       "version": "1.0.0",
       "ktools_version": "4.5.1",
-      "latest": true,
-      "previous": {
-        "4d1d19aa55df22515a280acb9126c7fa988cc072": {
-          "ktools_version": "4.5.0"
-        }
-      }
+      "latest": true
     }
   ],
   "official": [

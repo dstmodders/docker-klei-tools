@@ -43,7 +43,6 @@ for key in "${LATEST_VERSIONS_KEYS[@]}"; do
   for dist in "${DISTS[@]}"; do
     ktools_version=$(jq -r ".latest | .[$key] | .ktools_version" <<< "$JSON")
     latest=$(jq -r ".latest | .[$key] | .latest" <<< "$JSON")
-    previous=$(jq -r ".latest | .[$key] | .previous" <<< "$JSON")
     version=$(jq -r ".latest | .[$key] | .version" <<< "$JSON")
 
     if [ "${#version}" == 40 ]; then
@@ -70,20 +69,6 @@ for key in "${LATEST_VERSIONS_KEYS[@]}"; do
 
     print_url "$tags" "$COMMIT_ID" "latest/$dist"
   done
-
-  if [ "$previous" != 'null' ]; then
-    mapfile -t commits < <(jq -r 'keys[]' <<< "$previous")
-    ktools_version=$(jq -c ".[].ktools_version" <<< "$previous" | xargs)
-
-    for dist in "${DISTS[@]}"; do
-      for commit in "${commits[@]}"; do
-        tag_version_ktools_version_dist="$version-ktools-$ktools_version-$dist"
-        tag_version_ktools_version="$version-ktools-$ktools_version"
-        tags="\`$tag_version_ktools_version_dist\`, \`$tag_version_ktools_version\`"
-        print_url "$tags" "$commit" "latest/$dist"
-      done
-    done
-  fi
 done
 
 # reference: official-ktools-4.4.0-debian, official-ktools-4.4.0, official, official-debian, official-latest
@@ -92,7 +77,6 @@ for key in "${OFFICIAL_VERSIONS_KEYS[@]}"; do
     prefix='official-'
     ktools_version=$(jq -r ".official | .[$key] | .ktools_version" <<< "$JSON")
     latest=$(jq -r ".official | .[$key] | .latest" <<< "$JSON")
-    previous=$(jq -r ".official | .[$key] | .previous" <<< "$JSON")
     version=$(jq -r ".official | .[$key] | .version" <<< "$JSON")
 
     if [ "${#version}" == 40 ]; then
@@ -124,18 +108,4 @@ for key in "${OFFICIAL_VERSIONS_KEYS[@]}"; do
 
     print_url "$tags" "$COMMIT_ID" "official/$dist"
   done
-
-  if [ "$previous" != 'null' ]; then
-    mapfile -t commits < <(jq -r 'keys[]' <<< "$previous")
-    ktools_version=$(jq -c ".[].ktools_version" <<< "$previous" | xargs)
-
-    for dist in "${DISTS[@]}"; do
-      for commit in "${commits[@]}"; do
-        tag_version_ktools_version_dist="$prefix$version-ktools-$ktools_version-$dist"
-        tag_version_ktools_version="$prefix$version-ktools-$ktools_version"
-        tags="\`$tag_version_ktools_version_dist\`, \`$tag_version_ktools_version\`"
-        print_url "$tags" "$commit" "official/$dist"
-      done
-    done
-  fi
 done
