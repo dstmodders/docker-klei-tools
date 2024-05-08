@@ -75,7 +75,7 @@ PS:\> docker run --rm -v "$($Env:DST_DIR):/opt/dont_starve/" dstmodders/klei-too
 | `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | [klei-tools] `scml` path                 |
 | `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | [klei-tools] version (release or commit) |
 | `DS` or `DST`               | `/opt/dont_starve`                       | Game directory path                      |
-| `IMAGEMAGICK_VERSION`       | `7.1.1-6`                                | [ImageMagick] version                    |
+| `IMAGEMAGICK_VERSION`       | `7.1.1-32`                               | [ImageMagick] version                    |
 
 ## Supported build arguments
 
