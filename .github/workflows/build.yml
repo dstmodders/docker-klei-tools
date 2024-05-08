@@ -30,9 +30,11 @@ jobs:
       - name: Set matrix
         id: set-matrix
         run: |
-          JSON="$(cat ./versions.json)"
-          echo "latest=$(jq -cM .latest <<< "$JSON")" >> "$GITHUB_OUTPUT"
-          echo "official=$(jq -cM .official <<< "$JSON")" >> "$GITHUB_OUTPUT"
+          json="$(cat ./versions.json)"
+          {
+            echo "latest=$(jq -cM .latest <<< "$json")"
+            echo "official=$(jq -cM .official <<< "$json")"
+          } >> "$GITHUB_OUTPUT"
 
   official:
     needs: prepare
@@ -44,14 +46,18 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v4
-      - name: Set version outputs
-        id: version
+      - name: Set general outputs
+        id: general
         run: |
-          if [[ "${{ matrix.image.version }}" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "klei-tools=$(echo '${{ matrix.image.version }}' | cut -c 1-7)" >> "$GITHUB_OUTPUT"
-          else
-            echo "klei-tools=${{ matrix.image.version }}" >> "$GITHUB_OUTPUT"
+          klei_tools='${{ matrix.image.version }}'
+
+          if [[ "$klei_tools" =~ ^[0-9a-f]{40}$ ]]; then
+            klei_tools="$(echo "$klei_tools" | cut -c 1-7)"
           fi
+
+          echo "klei-tools version: $klei_tools"
+
+          echo "klei-tools-version=$klei_tools" >> "$GITHUB_OUTPUT"
       - name: Send Slack notification
         uses: codedsolar/slack-action@v1
         if: ${{ github.event_name != 'pull_request' }}
@@ -60,7 +66,7 @@ jobs:
           fields: |
             {STATUS}
             {REF}
-            klei-tools version: ${{ steps.version.outputs.klei-tools }}
+            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
             ktools version: ${{ matrix.image.ktools_version }}
           status: in-progress
       - name: Set up QEMU
@@ -118,7 +124,7 @@ jobs:
           fields: |
             {STATUS}
             {REF}
-            klei-tools version: ${{ steps.version.outputs.klei-tools }}
+            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
             ktools version: ${{ matrix.image.ktools_version }}
           status: ${{ job.status }}
           timestamp: ${{ steps.slack.outputs.slack-timestamp }}
@@ -133,14 +139,18 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v4
-      - name: Set version outputs
-        id: version
+      - name: Set general outputs
+        id: general
         run: |
-          if [[ "${{ matrix.image.version }}" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "klei-tools=$(echo '${{ matrix.image.version }}' | cut -c 1-7)" >> "$GITHUB_OUTPUT"
-          else
-            echo "klei-tools=${{ matrix.image.version }}" >> "$GITHUB_OUTPUT"
+          klei_tools='${{ matrix.image.version }}'
+
+          if [[ "$klei_tools" =~ ^[0-9a-f]{40}$ ]]; then
+            klei_tools="$(echo "$klei_tools" | cut -c 1-7)"
           fi
+
+          echo "klei-tools version: $klei_tools"
+
+          echo "klei-tools-version=$klei_tools" >> "$GITHUB_OUTPUT"
       - name: Send Slack notification
         uses: codedsolar/slack-action@v1
         if: ${{ github.event_name != 'pull_request' }}
@@ -149,7 +159,7 @@ jobs:
           fields: |
             {STATUS}
             {REF}
-            klei-tools version: ${{ steps.version.outputs.klei-tools }}
+            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
             ktools version: ${{ matrix.image.ktools_version }}
           status: in-progress
       - name: Set up QEMU
@@ -205,7 +215,7 @@ jobs:
           fields: |
             {STATUS}
             {REF}
-            klei-tools version: ${{ steps.version.outputs.klei-tools }}
+            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
             ktools version: ${{ matrix.image.ktools_version }}
           status: ${{ job.status }}
           timestamp: ${{ steps.slack.outputs.slack-timestamp }}
