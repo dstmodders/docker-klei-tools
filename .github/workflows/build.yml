@@ -49,15 +49,23 @@ jobs:
       - name: Set general outputs
         id: general
         run: |
+          dockerfiles_version='${{ hashFiles('official/**/Dockerfile') }}'
+          dockerfiles_version_short="$(echo "$dockerfiles_version" | cut -c 1-7)"
           klei_tools='${{ matrix.image.version }}'
 
           if [[ "$klei_tools" =~ ^[0-9a-f]{40}$ ]]; then
             klei_tools="$(echo "$klei_tools" | cut -c 1-7)"
           fi
 
+          echo "Dockerfiles version: $dockerfiles_version"
+          echo "Dockerfiles version (short): $dockerfiles_version_short"
           echo "klei-tools version: $klei_tools"
 
-          echo "klei-tools-version=$klei_tools" >> "$GITHUB_OUTPUT"
+          {
+            echo "dockerfiles-version=$dockerfiles_version"
+            echo "dockerfiles-version-short=$dockerfiles_version_short"
+            echo "klei-tools-version=$klei_tools"
+          } >> "$GITHUB_OUTPUT"
       - name: Send Slack notification
         uses: codedsolar/slack-action@v1
         if: ${{ github.event_name != 'pull_request' }}
@@ -102,14 +110,22 @@ jobs:
             type=raw,value=ktools-${{ matrix.image.ktools_version }}
             ${{ matrix.image.latest && 'type=raw,value=debian' || '' }}
             ${{ matrix.image.latest && 'type=raw,prefix=,value=official' || '' }}
+      - name: Cache Docker layers (Debian)
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-debian-cache
+          key: ${{ format('official-ktools-{0}-debian-{1}', matrix.image.ktools_version, steps.general.outputs.dockerfiles-version-short) }}
+          restore-keys: |
+            official-ktools-${{ matrix.image.ktools_version }}-debian-${{ steps.general.outputs.dockerfiles-version-short }}
+            official-ktools-${{ matrix.image.ktools_version }}-debian-
       - name: Build a Debian image
         uses: docker/build-push-action@v5
         with:
           build-args: |
             DS_KTOOLS_VERSION=${{ matrix.image.ktools_version }}
             DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}
-          cache-from: type=registry,ref=${{ env.DOCKERHUB_REPOSITORY }}:official-ktools-${{ matrix.image.ktools_version }}-debian
-          cache-to: type=inline
+          cache-from: type=local,src=/tmp/.buildx-debian-cache
+          cache-to: type=local,dest=/tmp/.buildx-debian-cache-new,mode=max
           context: .
           file: ./official/debian/Dockerfile
           labels: ${{ steps.debian-meta.outputs.labels }}
@@ -117,6 +133,10 @@ jobs:
           pull: true
           push: ${{ !env.ACT && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.debian-meta.outputs.tags }}
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-debian-cache
+          mv /tmp/.buildx-debian-cache-new /tmp/.buildx-debian-cache
       - name: Update Slack notification
         uses: codedsolar/slack-action@v1
         if: ${{ github.event_name != 'pull_request' && always() }}
@@ -142,15 +162,23 @@ jobs:
       - name: Set general outputs
         id: general
         run: |
+          dockerfiles_version='${{ hashFiles('latest/**/Dockerfile') }}'
+          dockerfiles_version_short="$(echo "$dockerfiles_version" | cut -c 1-7)"
           klei_tools='${{ matrix.image.version }}'
 
           if [[ "$klei_tools" =~ ^[0-9a-f]{40}$ ]]; then
             klei_tools="$(echo "$klei_tools" | cut -c 1-7)"
           fi
 
+          echo "Dockerfiles version: $dockerfiles_version"
+          echo "Dockerfiles version (short): $dockerfiles_version_short"
           echo "klei-tools version: $klei_tools"
 
-          echo "klei-tools-version=$klei_tools" >> "$GITHUB_OUTPUT"
+          {
+            echo "dockerfiles-version=$dockerfiles_version"
+            echo "dockerfiles-version-short=$dockerfiles_version_short"
+            echo "klei-tools-version=$klei_tools"
+          } >> "$GITHUB_OUTPUT"
       - name: Send Slack notification
         uses: codedsolar/slack-action@v1
         if: ${{ github.event_name != 'pull_request' }}
@@ -193,14 +221,22 @@ jobs:
             type=raw,value=${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}
             type=raw,value=${{ matrix.image.version }}
             ${{ matrix.image.latest && 'type=raw,value=debian' || '' }}
+      - name: Cache Docker layers (Debian)
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-debian-cache
+          key: ${{ format('{0}-ktools-{1}-debian-{2}', matrix.image.version, matrix.image.ktools_version, steps.general.outputs.dockerfiles-version-short) }}
+          restore-keys: |
+            ${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}-debian-${{ steps.general.outputs.dockerfiles-version-short }}
+            ${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}-debian-
       - name: Build a Debian image
         uses: docker/build-push-action@v5
         with:
           build-args: |
             DS_KTOOLS_VERSION=${{ matrix.image.ktools_version }}
             DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}
-          cache-from: type=registry,ref=${{ env.DOCKERHUB_REPOSITORY }}:${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}-debian
-          cache-to: type=inline
+          cache-from: type=local,src=/tmp/.buildx-debian-cache
+          cache-to: type=local,dest=/tmp/.buildx-debian-cache-new,mode=max
           context: .
           file: ./latest/debian/Dockerfile
           labels: ${{ steps.debian-meta.outputs.labels }}
@@ -208,6 +244,10 @@ jobs:
           pull: true
           push: ${{ !env.ACT && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.debian-meta.outputs.tags }}
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-debian-cache
+          mv /tmp/.buildx-debian-cache-new /tmp/.buildx-debian-cache
       - name: Update Slack notification
         uses: codedsolar/slack-action@v1
         if: ${{ github.event_name != 'pull_request' && always() }}
