@@ -1,6 +1,6 @@
-ARG DS_KTOOLS_VERSION="4.4.0"
+ARG KTOOLS_VERSION="4.4.0"
 
-FROM dstmodders/ktools:official-${DS_KTOOLS_VERSION}-debian
+FROM dstmodders/ktools:official-${KTOOLS_VERSION}-debian
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
