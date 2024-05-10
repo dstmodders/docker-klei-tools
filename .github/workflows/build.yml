@@ -122,7 +122,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}
+            KLEI_TOOLS_VERSION=${{ matrix.image.version }}
             KTOOLS_VERSION=${{ matrix.image.ktools_version }}
           cache-from: type=local,src=/tmp/.buildx-debian-cache
           cache-to: type=local,dest=/tmp/.buildx-debian-cache-new,mode=max
@@ -233,7 +233,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            DS_MOD_TOOLS_VERSION=${{ matrix.image.version }}
+            KLEI_TOOLS_VERSION=${{ matrix.image.version }}
             KTOOLS_VERSION=${{ matrix.image.ktools_version }}
           cache-from: type=local,src=/tmp/.buildx-debian-cache
           cache-to: type=local,dest=/tmp/.buildx-debian-cache-new,mode=max

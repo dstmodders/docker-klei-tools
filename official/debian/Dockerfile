@@ -73,8 +73,8 @@ RUN rm -rf /data/ \
   && pip --version \
   && pip list
 
-ARG DS_MOD_TOOLS_VERSION="3fe0cad89848c9d0fca8a4139a0491d188497636"
-ENV DS_MOD_TOOLS_VERSION="${DS_MOD_TOOLS_VERSION}"
+ARG KLEI_TOOLS_VERSION="3fe0cad89848c9d0fca8a4139a0491d188497636"
+ENV KLEI_TOOLS_VERSION="${KLEI_TOOLS_VERSION}"
 
 ENV DS="/opt/dont_starve"
 ENV DST="${DS}"
@@ -94,7 +94,7 @@ RUN apt-get update \
   # klei-tools \
   && git clone https://github.com/kleientertainment/ds_mod_tools.git \
   && cd ./ds_mod_tools/src/ \
-  && git reset --hard "${DS_MOD_TOOLS_VERSION}" \
+  && git reset --hard "${KLEI_TOOLS_VERSION}" \
   && git log --no-decorate --oneline -n 10 \
   && ./premake.sh \
   && make -C ../build/proj/ config=release \

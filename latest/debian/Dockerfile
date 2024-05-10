@@ -73,8 +73,8 @@ RUN rm -rf /data/ \
   && pip --version \
   && pip list
 
-ARG DS_MOD_TOOLS_VERSION="1.0.0"
-ENV DS_MOD_TOOLS_VERSION="${DS_MOD_TOOLS_VERSION}"
+ARG KLEI_TOOLS_VERSION="1.0.0"
+ENV KLEI_TOOLS_VERSION="${KLEI_TOOLS_VERSION}"
 
 ENV DS="/opt/dont_starve"
 ENV DST="${DS}"
@@ -92,9 +92,9 @@ RUN apt-get update \
     premake4='4.3+repack1-2+b1' \
     wget="$(if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then echo '1.21.3-1+b1'; else echo '1.21.3-1+b2'; fi)" \
   # klei-tools \
-  && wget -q "https://github.com/dstmodders/klei-tools/archive/refs/tags/v${DS_MOD_TOOLS_VERSION}.tar.gz" \
-  && tar xzf "v${DS_MOD_TOOLS_VERSION}.tar.gz" \
-  && cd "klei-tools-${DS_MOD_TOOLS_VERSION}/src/" \
+  && wget -q "https://github.com/dstmodders/klei-tools/archive/refs/tags/v${KLEI_TOOLS_VERSION}.tar.gz" \
+  && tar xzf "v${KLEI_TOOLS_VERSION}.tar.gz" \
+  && cd "klei-tools-${KLEI_TOOLS_VERSION}/src/" \
   && ./premake.sh \
   && make -C ../build/proj/ config=release \
   && mv ../build/linux/mod_tools/mod_tools/* ../build/linux/mod_tools/ \
