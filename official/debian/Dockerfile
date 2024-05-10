@@ -79,9 +79,9 @@ ENV KLEI_TOOLS_VERSION="${KLEI_TOOLS_VERSION}"
 ENV DS="/opt/dont_starve"
 ENV DST="${DS}"
 ENV KLEI_TOOLS="/opt/klei-tools/mod_tools"
-ENV DS_MOD_TOOLS_AUTOCOMPILER="${KLEI_TOOLS}/autocompiler"
-ENV DS_MOD_TOOLS_PNG="${KLEI_TOOLS}/png"
-ENV DS_MOD_TOOLS_SCML="${KLEI_TOOLS}/scml"
+ENV KLEI_TOOLS_AUTOCOMPILER="${KLEI_TOOLS}/autocompiler"
+ENV KLEI_TOOLS_PNG="${KLEI_TOOLS}/png"
+ENV KLEI_TOOLS_SCML="${KLEI_TOOLS}/scml"
 ENV PATH="${PATH}:/opt/klei-tools/mod_tools"
 
 # hadolint ignore=DL3003
