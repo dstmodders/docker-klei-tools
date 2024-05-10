@@ -78,14 +78,14 @@ PS:\> docker run --rm -v "$($Env:DST_DIR):/opt/dont_starve/" dstmodders/klei-too
 
 | Name                        | Value                                    | Description                    |
 | --------------------------- | ---------------------------------------- | ------------------------------ |
-| `DS_KTOOLS_KRANE`           | `/usr/local/bin/krane`                   | [ktools/krane] path            |
-| `DS_KTOOLS_KTECH`           | `/usr/local/bin/ktech`                   | [ktools/ktech] path            |
 | `DS_MOD_TOOLS_AUTOCOMPILER` | `/opt/klei-tools/mod_tools/autocompiler` | [klei-tools/autocompiler] path |
 | `DS_MOD_TOOLS_PNG`          | `/opt/klei-tools/mod_tools/png`          | [klei-tools/png] path          |
 | `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | [klei-tools/scml] path         |
 | `DS` or `DST`               | `/opt/dont_starve`                       | Game directory path            |
 | `IMAGEMAGICK_VERSION`       | `7.1.1-32`                               | [ImageMagick] version          |
 | `KLEI_TOOLS_VERSION`        | `1.0.0`                                  | [klei-tools] version           |
+| `KTOOLS_KRANE`              | `/usr/local/bin/krane`                   | [ktools/krane] path            |
+| `KTOOLS_KTECH`              | `/usr/local/bin/ktech`                   | [ktools/ktech] path            |
 | `KTOOLS_VERSION`            | `4.5.1`                                  | [ktools] version               |
 
 ## Supported build arguments
