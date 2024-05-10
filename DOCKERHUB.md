@@ -65,17 +65,17 @@ PS:\> docker run --rm -v "$($Env:DST_DIR):/opt/dont_starve/" dstmodders/klei-too
 
 ## Supported environment variables
 
-| Name                        | Value                                    | Description                              |
-| --------------------------- | ---------------------------------------- | ---------------------------------------- |
-| `DS_KTOOLS_KRANE`           | `/usr/local/bin/krane`                   | [ktools] `krane` path                    |
-| `DS_KTOOLS_KTECH`           | `/usr/local/bin/ktech`                   | [ktools] `ktech` path                    |
-| `DS_KTOOLS_VERSION`         | `4.5.1`                                  | [ktools] version                         |
-| `DS_MOD_TOOLS_AUTOCOMPILER` | `/opt/klei-tools/mod_tools/autocompiler` | [klei-tools] `autocompiler` path         |
-| `DS_MOD_TOOLS_PNG`          | `/opt/klei-tools/mod_tools/png`          | [klei-tools] `png` path                  |
-| `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | [klei-tools] `scml` path                 |
-| `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | [klei-tools] version (release or commit) |
-| `DS` or `DST`               | `/opt/dont_starve`                       | Game directory path                      |
-| `IMAGEMAGICK_VERSION`       | `7.1.1-32`                               | [ImageMagick] version                    |
+| Name                        | Value                                    | Description                    |
+| --------------------------- | ---------------------------------------- | ------------------------------ |
+| `DS_KTOOLS_KRANE`           | `/usr/local/bin/krane`                   | [ktools/krane] path            |
+| `DS_KTOOLS_KTECH`           | `/usr/local/bin/ktech`                   | [ktools/ktech] path            |
+| `DS_KTOOLS_VERSION`         | `4.5.1`                                  | [ktools] version               |
+| `DS_MOD_TOOLS_AUTOCOMPILER` | `/opt/klei-tools/mod_tools/autocompiler` | [klei-tools/autocompiler] path |
+| `DS_MOD_TOOLS_PNG`          | `/opt/klei-tools/mod_tools/png`          | [klei-tools/png] path          |
+| `DS_MOD_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | [klei-tools/scml] path         |
+| `DS_MOD_TOOLS_VERSION`      | `1.0.0`                                  | [klei-tools] version           |
+| `DS` or `DST`               | `/opt/dont_starve`                       | Game directory path            |
+| `IMAGEMAGICK_VERSION`       | `7.1.1-32`                               | [ImageMagick] version          |
 
 ## Supported build arguments
 
@@ -115,7 +115,12 @@ Released under the [MIT License](https://opensource.org/licenses/MIT).
 [don't starve]: https://www.klei.com/games/dont-starve
 [fork releases]: https://github.com/dstmodders/klei-tools/releases
 [imagemagick]: https://imagemagick.org/index.php
+[klei-tools/autocompiler]: https://github.com/dstmodders/klei-tools?tab=readme-ov-file#autocompiler
+[klei-tools/png]: https://github.com/dstmodders/klei-tools?tab=readme-ov-file#png
+[klei-tools/scml]: https://github.com/dstmodders/klei-tools?tab=readme-ov-file#scml
 [klei-tools]: https://github.com/dstmodders/klei-tools
+[ktools/krane]: https://github.com/dstmodders/ktools?tab=readme-ov-file#krane
+[ktools/ktech]: https://github.com/dstmodders/ktools?tab=readme-ov-file#ktech
 [ktools]: https://github.com/dstmodders/ktools
 [official releases]: https://github.com/kleientertainment/ds_mod_tools/releases
 [tags]: https://hub.docker.com/r/dstmodders/klei-tools/tags
