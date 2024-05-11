@@ -78,10 +78,9 @@ ENV KLEI_TOOLS_VERSION="${KLEI_TOOLS_VERSION}"
 
 ENV DS="/opt/dont_starve"
 ENV DST="${DS}"
-ENV KLEI_TOOLS="/opt/klei-tools/mod_tools"
-ENV KLEI_TOOLS_AUTOCOMPILER="${KLEI_TOOLS}/autocompiler"
-ENV KLEI_TOOLS_PNG="${KLEI_TOOLS}/png"
-ENV KLEI_TOOLS_SCML="${KLEI_TOOLS}/scml"
+ENV KLEI_TOOLS_AUTOCOMPILER="/opt/klei-tools/mod_tools/autocompiler"
+ENV KLEI_TOOLS_PNG="/opt/klei-tools/mod_tools/png"
+ENV KLEI_TOOLS_SCML="/opt/klei-tools/mod_tools/scml"
 ENV PATH="${PATH}:/opt/klei-tools/mod_tools"
 
 # hadolint ignore=DL3003
@@ -107,11 +106,11 @@ RUN apt-get update \
     ../build/linux/mod_tools/dont_starve.sublime-project \
     ../build/linux/mod_tools/mod_tools/ \
   && mkdir -p \
-    "${KLEI_TOOLS}" \
+    /opt/klei-tools/mod_tools/ \
     /opt/temp/ \
-  && mv ../build/linux/mod_tools/* "${KLEI_TOOLS}" \
+  && mv ../build/linux/mod_tools/* /opt/klei-tools/mod_tools/ \
   && mv ../build/dont_starve/ /opt/ \
-  && cd "${KLEI_TOOLS}" \
+  && cd /opt/klei-tools/mod_tools/ \
   && chown -R klei-tools:klei-tools /opt/temp/ \
   && chmod +x \
     ./autocompiler \
@@ -139,5 +138,5 @@ RUN apt-get update \
     /var/log/dpkg.log
 
 USER klei-tools
-WORKDIR "${KLEI_TOOLS}"
+WORKDIR /opt/klei-tools/mod_tools/
 CMD ["/opt/klei-tools/mod_tools/autocompiler"]
