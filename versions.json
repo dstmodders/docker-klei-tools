@@ -2,6 +2,7 @@
   "latest": [
     {
       "version": "1.0.0",
+      "imagemagick_version": "7.1.1-33",
       "ktools_version": "4.5.1",
       "latest": true
     }
@@ -9,6 +10,7 @@
   "official": [
     {
       "version": "3fe0cad89848c9d0fca8a4139a0491d188497636",
+      "imagemagick_version": "6.9.13-11",
       "ktools_version": "4.4.0",
       "latest": true
     }

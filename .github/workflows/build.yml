@@ -122,6 +122,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
+            IMAGEMAGICK_VERSION=${{ matrix.image.imagemagick_version }}
             KLEI_TOOLS_VERSION=${{ matrix.image.version }}
             KTOOLS_VERSION=${{ matrix.image.ktools_version }}
           cache-from: type=local,src=/tmp/.buildx-debian-cache
@@ -233,6 +234,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
+            IMAGEMAGICK_VERSION=${{ matrix.image.imagemagick_version }}
             KLEI_TOOLS_VERSION=${{ matrix.image.version }}
             KTOOLS_VERSION=${{ matrix.image.ktools_version }}
           cache-from: type=local,src=/tmp/.buildx-debian-cache

@@ -1,6 +1,7 @@
+ARG IMAGEMAGICK_VERSION="7.1.1-33"
 ARG KTOOLS_VERSION="4.5.1"
 
-FROM dstmodders/ktools:${KTOOLS_VERSION}-debian
+FROM dstmodders/ktools:${KTOOLS_VERSION}-imagemagick-${IMAGEMAGICK_VERSION}-debian
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
