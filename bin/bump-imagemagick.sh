@@ -92,16 +92,12 @@ commit=0
 
 while [ $# -gt 0 ]; do
   key="$1"
-  value="$2"
-
   case "$key" in
     latest|legacy)
       name="$key"
-      shift 1
       ;;
     -c|--commit)
       commit=1
-      shift 1
       ;;
     -h|--help)
       usage
@@ -113,9 +109,9 @@ while [ $# -gt 0 ]; do
       ;;
     *)
       new_version="$key"
-      shift 1
       ;;
   esac
+  shift 1
 done
 
 if [ -z "$name" ]; then
