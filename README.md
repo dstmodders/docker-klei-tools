@@ -79,7 +79,7 @@ PS:\> docker run --rm -v "$($Env:DST_DIR):/opt/dont_starve/" dstmodders/klei-too
 | Name                      | Value                                    | Description                    |
 | ------------------------- | ---------------------------------------- | ------------------------------ |
 | `DS` or `DST`             | `/opt/dont_starve`                       | Game directory path            |
-| `IMAGEMAGICK_VERSION`     | `7.1.1-36`                               | [ImageMagick] version          |
+| `IMAGEMAGICK_VERSION`     | `7.1.1-37`                               | [ImageMagick] version          |
 | `KLEI_TOOLS_AUTOCOMPILER` | `/opt/klei-tools/mod_tools/autocompiler` | [klei-tools/autocompiler] path |
 | `KLEI_TOOLS_PNG`          | `/opt/klei-tools/mod_tools/png`          | [klei-tools/png] path          |
 | `KLEI_TOOLS_SCML`         | `/opt/klei-tools/mod_tools/scml`         | [klei-tools/scml] path         |
