@@ -119,7 +119,7 @@ jobs:
             official-ktools-${{ matrix.image.ktools_version }}-debian-${{ steps.general.outputs.dockerfiles-version-short }}
             official-ktools-${{ matrix.image.ktools_version }}-debian-
       - name: Build a Debian image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           build-args: |
             IMAGEMAGICK_VERSION=${{ matrix.image.imagemagick_version }}
@@ -231,7 +231,7 @@ jobs:
             ${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}-debian-${{ steps.general.outputs.dockerfiles-version-short }}
             ${{ matrix.image.version }}-ktools-${{ matrix.image.ktools_version }}-debian-
       - name: Build a Debian image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           build-args: |
             IMAGEMAGICK_VERSION=${{ matrix.image.imagemagick_version }}
