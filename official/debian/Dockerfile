@@ -89,9 +89,9 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     build-essential='12.9' \
     ca-certificates='20230311' \
-    git='1:2.39.2-1.1' \
+    git='1:2.39.5-0+deb12u1' \
     premake4='4.3+repack1-2+b1' \
-  # klei-tools \
+  # klei-tools
   && git clone https://github.com/kleientertainment/ds_mod_tools.git \
   && cd ./ds_mod_tools/src/ \
   && git reset --hard "${KLEI_TOOLS_VERSION}" \

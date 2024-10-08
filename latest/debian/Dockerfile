@@ -91,7 +91,7 @@ RUN apt-get update \
     ca-certificates='20230311' \
     premake4='4.3+repack1-2+b1' \
     wget="$(if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then echo '1.21.3-1+b1'; else echo '1.21.3-1+b2'; fi)" \
-  # klei-tools \
+  # klei-tools
   && wget -q "https://github.com/dstmodders/klei-tools/archive/refs/tags/v${KLEI_TOOLS_VERSION}.tar.gz" \
   && tar xzf "v${KLEI_TOOLS_VERSION}.tar.gz" \
   && cd "klei-tools-${KLEI_TOOLS_VERSION}/src/" \
