@@ -39,7 +39,7 @@ Or you can also pick one of the [official releases]:
 ```shell
 $ docker pull dstmodders/klei-tools:official
 # or
-docker pull ghcr.io/dstmodders/klei-tools:official
+$ docker pull ghcr.io/dstmodders/klei-tools:official
 ```
 
 See [tags] for a list of all available versions.
