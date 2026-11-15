@@ -17,9 +17,9 @@ RUN rm -rf /data/ \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
     build-essential='12.9' \
-    ca-certificates='20230311' \
-    unzip='6.0-28' \
-    wget="$(if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then echo '1.21.3-1+b1'; else echo '1.21.3-1+b2'; fi)" \
+    ca-certificates='20250419~deb12u2' \
+    unzip='6.0-28+deb12u1' \
+    wget='1.21.3-1+deb12u1' \
   && if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then \
     apt-get install -y --no-install-recommends gcc-multilib='4:12.2.0-3'; \
   fi \
@@ -88,8 +88,8 @@ ENV PATH="${PATH}:/opt/klei-tools/mod_tools"
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     build-essential='12.9' \
-    ca-certificates='20230311' \
-    git='1:2.39.5-0+deb12u1' \
+    ca-certificates='20250419~deb12u2' \
+    git='1:2.39.5-0+deb12u3' \
     premake4='4.3+repack1-2+b1' \
   # klei-tools
   && git clone https://github.com/kleientertainment/ds_mod_tools.git \
