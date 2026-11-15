@@ -28,14 +28,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         id: node
         with:
           node-version: 26.13.0
       - name: Send Slack notification
-        uses: codedsolar/slack-action@v1
+        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
         if: ${{ github.event_name != 'pull_request' }}
         id: slack
         with:
@@ -57,13 +57,13 @@ jobs:
         id: prettier
         run: echo "issues=$(pnpm exec prettier --list-different . | wc -l)" >> "$GITHUB_OUTPUT"
       - name: Lint using Hadolint (latest Debian)
-        uses: hadolint/hadolint-action@v3.5.0
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
         id: hadolint-latest-debian
         with:
           dockerfile: ./latest/debian/Dockerfile
           no-fail: true
       - name: Lint using Hadolint (official Debian)
-        uses: hadolint/hadolint-action@v3.5.0
+        uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
         id: hadolint-official-debian
         with:
           dockerfile: ./official/debian/Dockerfile
@@ -106,7 +106,7 @@ jobs:
           fi
           exit "$exit_code"
       - name: Update Slack notification
-        uses: codedsolar/slack-action@v1
+        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
         if: ${{ github.event_name != 'pull_request' && always() }}
         with:
           fields: |
