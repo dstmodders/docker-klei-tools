@@ -9,6 +9,7 @@ ARG OPENSSL_VERSION="1.1.1w"
 ARG PYTHON_VERSION="2.7.18"
 ARG TARGETPLATFORM
 
+# hadolint ignore=DL3066
 USER root
 WORKDIR /tmp/
 # hadolint ignore=DL3003
@@ -20,14 +21,14 @@ RUN rm -rf /data/ \
     ca-certificates='20250419~deb12u2' \
     unzip='6.0-28+deb12u1' \
     wget='1.21.3-1+deb12u1' \
-  && if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then \
+  && if [ "${TARGETPLATFORM}" = 'linux/386' ]; then \
     apt-get install -y --no-install-recommends gcc-multilib='4:12.2.0-3'; \
   fi \
   # openssl
   && wget -q "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" \
   && tar xzf "openssl-${OPENSSL_VERSION}.tar.gz" \
   && cd "openssl-${OPENSSL_VERSION}" \
-  && if [[ "${TARGETPLATFORM}" == 'linux/386' ]]; then \
+  && if [ "${TARGETPLATFORM}" = 'linux/386' ]; then \
     setarch i386 ./config; \
   else \
     ./config; \
@@ -138,6 +139,6 @@ RUN apt-get update \
     /var/log/apt/ \
     /var/log/dpkg.log
 
-USER klei-tools
+USER 1000:1000
 WORKDIR /opt/klei-tools/mod_tools/
 CMD ["/opt/klei-tools/mod_tools/autocompiler"]
