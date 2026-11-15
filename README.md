@@ -103,14 +103,27 @@ PS:\> docker run --rm -v "$($Env:DST_DIR):/opt/dont_starve/" dstmodders/klei-too
 
 ## Build
 
-To build images locally:
+To build images locally, you can use `bin/build.sh` script:
+
+```shell
+# to build all images
+$ ./bin/build.sh
+
+# to build only the latest images
+$ ./bin/build.sh latest
+
+# to build only the official images
+$ ./bin/build.sh official
+```
+
+To build images manually:
 
 ```shell
 $ docker build --tag='dstmodders/klei-tools:latest' ./latest/debian/
 $ docker build --tag='dstmodders/klei-tools:official' ./official/debian/
 ```
 
-Respectively, to build multi-platform images using [buildx]:
+Respectively, to build multi-platform images manually using [buildx]:
 
 ```shell
 $ docker buildx build --platform='linux/amd64,linux/386' --tag='dstmodders/klei-tools:latest' ./latest/debian/
