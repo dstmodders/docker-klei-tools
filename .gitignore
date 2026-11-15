@@ -1,2 +1,5 @@
-.idea/
-.vscode/
+/.idea/
+/.pnpm-store/
+/.vscode/
+/act-event.json
+/node_modules/
