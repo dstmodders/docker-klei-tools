@@ -1,80 +1,73 @@
 #!/usr/bin/env bash
+#
+# Bump the latest or official ImageMagick version.
+#
+# Usage:
+#   bump-imagemagick.sh [flags] [<image set>] [<version>]
+#
+# Examples:
+#   bump-imagemagick.sh
+#   bump-imagemagick.sh -d latest 7.1.2-1
+#
+# Arguments:
+#   <image set>     Image set: "latest" or "official"
+#   <version>       ImageMagick version
+#
+# Flags:
+#   -c, --commit    Commit changes
+#   -d, --dry-run   Only check and don't apply or commit any changes
+#   -h, --help      Show this help message
+#
+# Environment Variables:
+#   NO_COLOR        Set to 1 to disable terminal colors
+#                   (see no-color.org, default "0")
+#
+set -euo pipefail
 
+# define constants
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 DOCKERHUB_START_LINE=6
-JSON="$(cat "$BASE_DIR/../versions.json")"
-PROGRAM="$(basename "$0")"
+JSON="$(cat "${BASE_DIR}/../versions.json")"
 README_START_LINE=17
 
 readonly BASE_DIR
 readonly DOCKERHUB_START_LINE
 readonly JSON
-readonly PROGRAM
 readonly README_START_LINE
 
-usage() {
-  echo -e "Bump the latest or legacy ImageMagick version.
+# shellcheck disable=SC1091
+source "${BASE_DIR}/common.sh"
 
-    Usage:
-      $PROGRAM [flags] [latest|legacy] [version]
+# define defaults for environment variables
+NO_COLOR="${NO_COLOR:-0}"
 
-    Flags:
-      -c, --commit   commit changes
-      -h, --help     help for $PROGRAM" | sed -E 's/^ {4}//'
-}
-
-print_bold() {
-  local value="$1"
-  local output="${2:-1}"
-
-  if [ "$DISABLE_COLORS" = '1' ] || ! [ -t 1 ]; then
-    printf '%s' "$value" >&"$output"
-  else
-    printf "$(tput bold)%s$(tput sgr0)" "$value" >&"$output"
-  fi
-}
-
-print_bold_color() {
-  local color="$1"
-  local value="$2"
-  local output="${3:-1}"
-
-  if [ "$DISABLE_COLORS" = '1' ] || ! [ -t 1 ]; then
-    printf '%s' "$value" >&"$output"
-  else
-    printf "$(tput bold)$(tput setaf "$color")%s$(tput sgr0)" "$value" >&"$output"
-  fi
-}
-
-print_error() {
-  print_bold_color 1 "error: $1" 2
-  echo '' >&2
-}
+# define flags
+FLAG_COMMIT=0
+FLAG_DRY_RUN=0
 
 summary() {
   local dir="$1"
   local old_version="$2"
   local new_version="$3"
   local files=(
-    "$dir/debian/Dockerfile"
+    "${dir}/debian/Dockerfile"
     'DOCKERHUB.md'
     'README.md'
     'versions.json'
   )
 
-  print_bold '[FILES]'
-  printf '\n\n'
+  print_step_dotted 'Printing affected files'
+  printf '\n'
+  print_separator
   mapfile -t sorted_files < <(printf "%s\n" "${files[@]}" | LC_ALL=C sort)
   for file in "${sorted_files[@]}"; do
-    echo "$file"
+    printf '%s\n' "${file}"
   done
-
+  print_separator
+  print_step_dotted 'Current version' "${old_version}"
   printf '\n'
-  print_bold '[VERSION]'
-  printf '\n\n'
-
-  echo "Current: $old_version"
-  echo "New: $new_version"
+  print_step_dotted 'New version' "${new_version}"
+  printf '\n'
 }
 
 replace() {
@@ -82,94 +75,124 @@ replace() {
   local old_version="$2"
   local new_version="$3"
 
-  printf 'Replacing...'
-  sed -i "$DOCKERHUB_START_LINE,\$s/\`$old_version\`/\`$new_version\`/g" ./DOCKERHUB.md
-  sed -i "$README_START_LINE,\$s/\`$old_version\`/\`$new_version\`/g" ./README.md
-  sed -i "s/\"$old_version\"/\"$new_version\"/" ./versions.json
-  sed -i "s/^ARG IMAGEMAGICK_VERSION=\"$old_version\"$/ARG IMAGEMAGICK_VERSION=\"$new_version\"/" "./$dir/debian/Dockerfile"
-  printf ' Done\n'
+  print_step_dotted 'Replacing'
+  sed -i "${DOCKERHUB_START_LINE},\$s/\`${old_version}\`/\`${new_version}\`/g" ./DOCKERHUB.md
+  sed -i "${README_START_LINE},\$s/\`${old_version}\`/\`${new_version}\`/g" ./README.md
+  sed -i "s/\"${old_version}\"/\"${new_version}\"/" ./versions.json
+  sed -i "s/^ARG IMAGEMAGICK_VERSION=\"${old_version}\"$/ARG IMAGEMAGICK_VERSION=\"${new_version}\"/" "./${dir}/debian/Dockerfile"
+  print_step_success
 }
 
-cd "$BASE_DIR/.." || exit 1
+cd "${BASE_DIR}/.." || exit 1
 
 name=''
-commit=0
+new_version=''
 
 while [ $# -gt 0 ]; do
   key="$1"
-  case "$key" in
-    latest|legacy)
-      name="$key"
+  case "${key}" in
+    latest | official)
+      name="${key}"
       ;;
-    -c|--commit)
-      commit=1
+    -c | --commit)
+      FLAG_COMMIT=1
       ;;
-    -h|--help)
+    -d | --dry-run)
+      FLAG_DRY_RUN=1
+      ;;
+    -h | --help)
       usage
       exit 0
       ;;
     -*)
-      print_error 'unrecognized flag'
-      exit 1
+      die 'unrecognized flag'
       ;;
     *)
-      new_version="$key"
+      new_version="${key}"
       ;;
   esac
   shift 1
 done
 
-if [ -z "$name" ]; then
-  echo 'Choose bump option:'
-  options=('latest' 'legacy')
+readonly FLAG_COMMIT
+readonly FLAG_DRY_RUN
+
+trap interrupt SIGINT
+
+if [ -z "${name}" ]; then
+  print_step_dotted 'Choose image set option'
+  printf '\n'
+  print_separator
+
+  options=('latest' 'official')
   select opt in "${options[@]}"; do
-    case "$opt" in
-      latest) name='latest'; break ;;
-      legacy) name='legacy'; break ;;
-      *) print_error 'unrecognized option (choose number 1 or 2)' ;;
+    case "${opt}" in
+      latest)
+        name='latest'
+        print_separator
+        break
+        ;;
+      official)
+        name='official'
+        print_separator
+        break
+        ;;
+      *)
+        print_error 'unrecognized option (choose number 1 or 2)'
+        ;;
     esac
   done
 fi
 
-if [ -n "$name" ]; then
-  dir=''
-  old_version=''
-  case "$name" in
-    latest)
-      dir='latest'
-      old_version="$(jq -r ".${dir}[] | .imagemagick_version" <<< "$JSON" | head -n 1)"
-      ;;
-    legacy)
-      dir='official'
-      old_version="$(jq -r ".${dir}[] | .imagemagick_version" <<< "$JSON" | head -n 1)"
-      ;;
-  esac
+if [ -z "${name}" ]; then
+  die 'image set not specified'
+fi
 
-  if [ -z "$new_version" ]; then
-    echo "Current version: $old_version"
-    read -rp "Enter new $name version: " new_version
-    echo '---'
-  fi
+old_version="$(jq -r ".${name}[] | .imagemagick_version" <<< "${JSON}" | head -n 1)"
 
-  summary "$dir" "$old_version" "$new_version"
-  echo '---'
-  replace "$dir" "$old_version" "$new_version"
+if [ -z "${new_version}" ]; then
+  printf 'Current version: %s\n' "${old_version}"
+  while [ -z "${new_version}" ]; do
+    read -rp "Enter new ${name} version: " new_version
+    if [ -z "${new_version}" ]; then
+      print_error 'empty version'
+    fi
+  done
+  print_separator
+fi
 
-  if [ "$commit" -eq 1 ]; then
-    printf 'Committing...'
+print_step_dotted 'Setting image set' "${name}"
+print_step_success
+
+print_step_dotted 'Setting new version' "${new_version}"
+print_step_success
+
+summary "${name}" "${old_version}" "${new_version}"
+if [ "${FLAG_DRY_RUN}" -eq 1 ]; then
+  complete 3 'Dry-run completed'
+fi
+
+print_separator
+replace "${name}" "${old_version}" "${new_version}"
+
+if [ "${FLAG_COMMIT}" -eq 1 ]; then
+  print_step_dotted 'Committing'
+  if [ "${old_version}" != "${new_version}" ]; then
     git add \
-      "$dir/debian/Dockerfile" \
+      "${name}/debian/Dockerfile" \
       DOCKERHUB.md \
       README.md \
       versions.json
     if [ -n "$(git diff --cached --name-only)" ]; then
       printf '\n'
-      echo '---'
-      git commit -m "Bump ImageMagick from $old_version to $new_version"
+      print_separator
+      git commit -m "Bump ImageMagick from ${old_version} to ${new_version}"
     else
-      printf ' Skipped\n'
+      print_step_skipped
     fi
+  else
+    print_step_skipped
   fi
-
-  exit 0
 fi
+
+complete 2 'Bump completed'
