@@ -24,6 +24,8 @@ jobs:
     outputs:
       latest: ${{ steps.set-matrix.outputs.latest }}
       official: ${{ steps.set-matrix.outputs.official }}
+      latest-fields-pending: ${{ steps.set-matrix.outputs.latest-fields-pending }}
+      official-fields-pending: ${{ steps.set-matrix.outputs.official-fields-pending }}
     steps:
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -31,16 +33,51 @@ jobs:
         id: set-matrix
         run: |
           json="$(cat ./versions.json)"
+          latest="$(jq -cM '
+            [.latest[] | . + {
+              version_short: (if (.version | test("^[0-9a-f]{40}$")) then .version[0:7] else .version end)
+            }]
+          ' <<< "$json")"
+          official="$(jq -cM '
+            [.official[] | . + {
+              version_short: (if (.version | test("^[0-9a-f]{40}$")) then .version[0:7] else .version end)
+            }]
+          ' <<< "$json")"
           {
-            echo "latest=$(jq -cM .latest <<< "$json")"
-            echo "official=$(jq -cM .official <<< "$json")"
+            echo "latest=${latest}"
+            echo "official=${official}"
+            echo "latest-fields-pending<<EOF"
+            jq -r '.[] | "klei-tools \(.version_short) / ktools \(.ktools_version) / IM \(.imagemagick_version): Pending..."' <<< "$latest"
+            echo "EOF"
+            echo "official-fields-pending<<EOF"
+            jq -r '.[] | "klei-tools \(.version_short) / ktools \(.ktools_version) / IM \(.imagemagick_version): Pending..."' <<< "$official"
+            echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-  official:
+  official-notify:
     needs: prepare
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
+    outputs:
+      slack-timestamp: ${{ steps.slack.outputs.slack-timestamp }}
+    steps:
+      - name: Send Slack notification
+        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
+        id: slack
+        with:
+          text: GitHub Actions <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} / official> job in {GITHUB_REF} by {GITHUB_ACTOR}
+          fields: |
+            {STATUS}
+            {REF}
+            ${{ needs.prepare.outputs.official-fields-pending }}
+          status: in-progress
+
+  official:
+    needs: [prepare, official-notify]
+    runs-on: ubuntu-latest
+    if: ${{ always() && needs.prepare.result == 'success' }}
     strategy:
-      max-parallel: 1
+      fail-fast: false
       matrix:
         image: ${{ fromJSON(needs.prepare.outputs.official) }}
     steps:
@@ -51,32 +88,14 @@ jobs:
         run: |
           dockerfiles_version='${{ hashFiles('official/**/Dockerfile') }}'
           dockerfiles_version_short="$(echo "$dockerfiles_version" | cut -c 1-7)"
-          klei_tools='${{ matrix.image.version }}'
-
-          if [[ "$klei_tools" =~ ^[0-9a-f]{40}$ ]]; then
-            klei_tools="$(echo "$klei_tools" | cut -c 1-7)"
-          fi
 
           echo "Dockerfiles version: $dockerfiles_version"
           echo "Dockerfiles version (short): $dockerfiles_version_short"
-          echo "klei-tools version: $klei_tools"
 
           {
             echo "dockerfiles-version=$dockerfiles_version"
             echo "dockerfiles-version-short=$dockerfiles_version_short"
-            echo "klei-tools-version=$klei_tools"
           } >> "$GITHUB_OUTPUT"
-      - name: Send Slack notification
-        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
-        if: ${{ github.event_name != 'pull_request' }}
-        id: slack
-        with:
-          fields: |
-            {STATUS}
-            {REF}
-            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
-            ktools version: ${{ matrix.image.ktools_version }}
-          status: in-progress
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
       - name: Set up Docker Buildx
@@ -140,21 +159,94 @@ jobs:
           mv /tmp/.buildx-debian-cache-new /tmp/.buildx-debian-cache
       - name: Update Slack notification
         uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
-        if: ${{ github.event_name != 'pull_request' && always() }}
+        if: ${{ always() && needs.official-notify.outputs.slack-timestamp != '' }}
+        continue-on-error: true
         with:
+          text: GitHub Actions <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} / official> job in {GITHUB_REF} by {GITHUB_ACTOR}
+          fields-mode: merge
+          ignore-failures: true
+          preserve-color: true
+          fields: |
+            klei-tools ${{ matrix.image.version_short }} / ktools ${{ matrix.image.ktools_version }} / IM ${{ matrix.image.imagemagick_version }}: ${{ job.status == 'success' && 'Success' || job.status == 'cancelled' && 'Cancelled' || job.status == 'skipped' && 'Skipped' || 'Failure' }}
+          timestamp: ${{ needs.official-notify.outputs.slack-timestamp }}
+      - name: Save Slack field outcome
+        if: ${{ always() }}
+        run: |
+          case "${{ job.status }}" in
+            success) value=Success ;;
+            cancelled) value=Cancelled ;;
+            skipped) value=Skipped ;;
+            *) value=Failure ;;
+          esac
+          mkdir -p .slack-field
+          printf 'klei-tools %s / ktools %s / IM %s: %s\n' \
+            '${{ matrix.image.version_short }}' \
+            '${{ matrix.image.ktools_version }}' \
+            '${{ matrix.image.imagemagick_version }}' \
+            "$value" > .slack-field/field.txt
+      - name: Upload Slack field outcome
+        if: ${{ always() && needs.official-notify.outputs.slack-timestamp != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: slack-field-official-${{ matrix.image.version }}
+          path: .slack-field/field.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  official-finalize:
+    needs: [official-notify, official]
+    runs-on: ubuntu-latest
+    if: ${{ always() && needs.official-notify.result == 'success' }}
+    steps:
+      - name: Download Slack field outcomes
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: slack-field-official-*
+          path: slack-fields
+      - name: Assemble Slack fields
+        id: fields
+        run: |
+          {
+            echo 'fields<<EOF'
+            find slack-fields -type f -name field.txt | sort | while read -r f; do cat "$f"; done
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+      - name: Finalize Slack notification
+        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
+        with:
+          text: GitHub Actions <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} / official> job in {GITHUB_REF} by {GITHUB_ACTOR}
+          color: ${{ needs.official.result == 'success' && '#24a943' || needs.official.result == 'cancelled' && '#1f242b' || '#cc1f2d' }}
           fields: |
             {STATUS}
             {REF}
-            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
-            ktools version: ${{ matrix.image.ktools_version }}
-          status: ${{ job.status }}
-          timestamp: ${{ steps.slack.outputs.slack-timestamp }}
+            ${{ steps.fields.outputs.fields }}
+          status: ${{ needs.official.result == 'success' && 'success' || needs.official.result == 'cancelled' && 'cancelled' || 'failure' }}
+          timestamp: ${{ needs.official-notify.outputs.slack-timestamp }}
+
+  latest-notify:
+    needs: prepare
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
+    outputs:
+      slack-timestamp: ${{ steps.slack.outputs.slack-timestamp }}
+    steps:
+      - name: Send Slack notification
+        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
+        id: slack
+        with:
+          text: GitHub Actions <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} / latest> job in {GITHUB_REF} by {GITHUB_ACTOR}
+          fields: |
+            {STATUS}
+            {REF}
+            ${{ needs.prepare.outputs.latest-fields-pending }}
+          status: in-progress
 
   latest:
-    needs: [prepare, official]
+    needs: [prepare, official, latest-notify]
     runs-on: ubuntu-latest
+    if: ${{ always() && needs.prepare.result == 'success' && needs.official.result == 'success' }}
     strategy:
-      max-parallel: 1
+      fail-fast: false
       matrix:
         image: ${{ fromJSON(needs.prepare.outputs.latest) }}
     steps:
@@ -165,32 +257,14 @@ jobs:
         run: |
           dockerfiles_version='${{ hashFiles('latest/**/Dockerfile') }}'
           dockerfiles_version_short="$(echo "$dockerfiles_version" | cut -c 1-7)"
-          klei_tools='${{ matrix.image.version }}'
-
-          if [[ "$klei_tools" =~ ^[0-9a-f]{40}$ ]]; then
-            klei_tools="$(echo "$klei_tools" | cut -c 1-7)"
-          fi
 
           echo "Dockerfiles version: $dockerfiles_version"
           echo "Dockerfiles version (short): $dockerfiles_version_short"
-          echo "klei-tools version: $klei_tools"
 
           {
             echo "dockerfiles-version=$dockerfiles_version"
             echo "dockerfiles-version-short=$dockerfiles_version_short"
-            echo "klei-tools-version=$klei_tools"
           } >> "$GITHUB_OUTPUT"
-      - name: Send Slack notification
-        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
-        if: ${{ github.event_name != 'pull_request' }}
-        id: slack
-        with:
-          fields: |
-            {STATUS}
-            {REF}
-            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
-            ktools version: ${{ matrix.image.ktools_version }}
-          status: in-progress
       - name: Set up QEMU
         uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
       - name: Set up Docker Buildx
@@ -252,12 +326,66 @@ jobs:
           mv /tmp/.buildx-debian-cache-new /tmp/.buildx-debian-cache
       - name: Update Slack notification
         uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
-        if: ${{ github.event_name != 'pull_request' && always() }}
+        if: ${{ always() && needs.latest-notify.outputs.slack-timestamp != '' }}
+        continue-on-error: true
         with:
+          text: GitHub Actions <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} / latest> job in {GITHUB_REF} by {GITHUB_ACTOR}
+          fields-mode: merge
+          ignore-failures: true
+          preserve-color: true
+          fields: |
+            klei-tools ${{ matrix.image.version_short }} / ktools ${{ matrix.image.ktools_version }} / IM ${{ matrix.image.imagemagick_version }}: ${{ job.status == 'success' && 'Success' || job.status == 'cancelled' && 'Cancelled' || job.status == 'skipped' && 'Skipped' || 'Failure' }}
+          timestamp: ${{ needs.latest-notify.outputs.slack-timestamp }}
+      - name: Save Slack field outcome
+        if: ${{ always() }}
+        run: |
+          case "${{ job.status }}" in
+            success) value=Success ;;
+            cancelled) value=Cancelled ;;
+            skipped) value=Skipped ;;
+            *) value=Failure ;;
+          esac
+          mkdir -p .slack-field
+          printf 'klei-tools %s / ktools %s / IM %s: %s\n' \
+            '${{ matrix.image.version_short }}' \
+            '${{ matrix.image.ktools_version }}' \
+            '${{ matrix.image.imagemagick_version }}' \
+            "$value" > .slack-field/field.txt
+      - name: Upload Slack field outcome
+        if: ${{ always() && needs.latest-notify.outputs.slack-timestamp != '' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: slack-field-latest-${{ matrix.image.version }}
+          path: .slack-field/field.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  latest-finalize:
+    needs: [latest-notify, latest]
+    runs-on: ubuntu-latest
+    if: ${{ always() && needs.latest-notify.result == 'success' }}
+    steps:
+      - name: Download Slack field outcomes
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: slack-field-latest-*
+          path: slack-fields
+      - name: Assemble Slack fields
+        id: fields
+        run: |
+          {
+            echo 'fields<<EOF'
+            find slack-fields -type f -name field.txt | sort | while read -r f; do cat "$f"; done
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+      - name: Finalize Slack notification
+        uses: codedsolar/slack-action@7747edbf087b4facb2726870a34a1f174314b5ae # v1.5.0
+        with:
+          text: GitHub Actions <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} / latest> job in {GITHUB_REF} by {GITHUB_ACTOR}
+          color: ${{ needs.latest.result == 'success' && '#24a943' || needs.latest.result == 'cancelled' && '#1f242b' || '#cc1f2d' }}
           fields: |
             {STATUS}
             {REF}
-            klei-tools version: ${{ steps.general.outputs.klei-tools-version }}
-            ktools version: ${{ matrix.image.ktools_version }}
-          status: ${{ job.status }}
-          timestamp: ${{ steps.slack.outputs.slack-timestamp }}
+            ${{ steps.fields.outputs.fields }}
+          status: ${{ needs.latest.result == 'success' && 'success' || needs.latest.result == 'cancelled' && 'cancelled' || 'failure' }}
+          timestamp: ${{ needs.latest-notify.outputs.slack-timestamp }}
