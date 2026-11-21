@@ -117,6 +117,8 @@ done
 readonly FLAG_COMMIT
 readonly FLAG_DRY_RUN
 
+require_cmds jq
+
 trap interrupt SIGINT
 
 if [ -z "${name}" ]; then
